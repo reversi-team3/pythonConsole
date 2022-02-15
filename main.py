@@ -1,5 +1,5 @@
 from controller.game_controller import GameController
-from model.game import Game
+from model.model import Game
 from view.board_console_view import BoardConsoleView
 from view.game_console_view import GameConsoleView
 

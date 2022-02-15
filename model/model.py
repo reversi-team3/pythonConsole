@@ -20,6 +20,8 @@ class Game:
             return False
         if col < 0 or col >= len(self.board):
             return False
+        if row is None or col is None:
+            return False
         if self.board[row, col] != 0:
             return False
 

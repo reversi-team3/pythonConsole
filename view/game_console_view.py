@@ -15,6 +15,10 @@ class GameConsoleView(GameView):
     def get_move(self):
         move = input("Enter your move (row, col): ")
         move = move.split(',')
+        print(len(move))
+        if len(move) is not 2:
+            self.display_illegal_move
+            self.get_move()
         row = int(move[0]) - 1
         col = int(move[1]) - 1
         return row, col
