@@ -90,7 +90,7 @@ class Game:
                 # The path of each individual line
                 path = []
 
-                # Determining direction to move
+                # Determining direction to move, will be from -1 to 1
                 deltaX = neighX-row
                 deltaY = neighY-col
 
@@ -111,9 +111,12 @@ class Game:
                             convert.append(node)
                         break
                     # Move the tile
+                    # self.board[tempX][tempY] = self.curr_player
                     tempX += deltaX
                     tempY += deltaY
 
+        # Could also include this part in the above while loop, where if value != 0 and != self.curr_player, we change it to self.curr_player, up until
+        # 0 or self.curr_player is reached.
         # Convert all the appropriate tiles
         for node in convert:
             self.board[node[0]][node[1]] = self.curr_player
