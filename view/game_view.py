@@ -13,17 +13,21 @@ class GameView(ABC):
         pass
 
     @abstractmethod
-    def show_legal_moves(self):
-        pass
-
-    @abstractmethod
     def get_move(self):
+        """ Asks for next move from user """
         pass
 
     @abstractmethod
     def display_illegal_move(self):
+        """ Displays that the attempted move was illegal """
         pass
 
     @abstractmethod
     def display_winner(self, winner):
+        """ Displays the winning Player """
+        pass
+
+    @abstractmethod
+    def display_no_legal_moves(self, player):
+        """ Displays a message that the given Player or both Players have no legal moves. """
         pass
