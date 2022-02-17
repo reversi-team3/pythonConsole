@@ -2,7 +2,7 @@ from controller.local_controller import LocalController
 from model.model import Game
 from view.board_console_view import BoardConsoleView
 from view.game_console_view import GameConsoleView
-
+#main.py
 board_size = input("Welcome to Reversi!\n"
                    "Local mode selected.\n"
                    "Enter your game board size(at least 6, must be even): ")
