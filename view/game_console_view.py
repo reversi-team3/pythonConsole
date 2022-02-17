@@ -9,17 +9,23 @@ class GameConsoleView(GameView):
     def display_curr_player(self, player):
         print(f"Player {player_symbol[player]}'s turn.")
 
+    # Move to controller
     def get_move(self):
         move = [0]
-        while len(move) != 2:
+        valid = False
+        while len(move) != 2 and not valid:
             move = input("Enter your move (row, col): ")
             if move == "exit":
                 return [-1, -1]
-            move = move.split(',')
-            if len(move) != 2:
+            try:
+                move = move.split(',')
+                row = int(move[0]) - 1
+                col = int(move[1]) - 1
+                valid = True
+            except (ValueError, IndexError) as e:
                 self.display_illegal_move()
-        row = int(move[0]) - 1
-        col = int(move[1]) - 1
+                move = [0]
+                continue
         return row, col
 
     def display_illegal_move(self):

@@ -77,8 +77,8 @@ class Game:
                 if self.board[i][j] != 0:
                     neighbours.append([i, j])
 
-        # Which tiles to convert
-        convert = []
+        # Which tiles to flip
+        flip = []
 
         # For all the generated neighbours, determine if they form a line
         # If a line is formed, we will add it to the convert array
@@ -106,9 +106,9 @@ class Game:
                         break
                     # If we reach a tile of the player's colour, a line is formed
                     if value == self.curr_player:
-                        # Append all of our path nodes to the convert array
-                        for node in path:
-                            convert.append(node)
+                        # Append all of our path tiles to the convert array
+                        for tile in path:
+                            flip.append(tile)
                         break
                     # Move the tile
                     # self.board[tempX][tempY] = self.curr_player
@@ -116,8 +116,8 @@ class Game:
                     temp_y += y_increment
 
         # Convert all the appropriate tiles
-        for node in convert:
-            self.board[node[0]][node[1]] = self.curr_player
+        for tile in flip:
+            self.board[tile[0]][tile[1]] = self.curr_player
             self.zeros -= 1
 
     def has_legal_moves(self):
