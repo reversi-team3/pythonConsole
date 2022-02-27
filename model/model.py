@@ -1,6 +1,7 @@
 import numpy as np
 from model.player import Player
-
+from mysql.connector import connect, Error
+from getpass import getpass
 
 class Game:
     def __init__(self, board_size):
@@ -16,6 +17,8 @@ class Game:
                    ] = int(1+self.curr_player)
         # used for runtime efficiency of has_legal_moves()
         self.zeros = (board_size ** 2) - 4
+        # should probably initialize the db server connection here and refer to it as needed
+        # instead of opening/closing in every method call
 
     def is_legal_move(self, row, col):
         if row < 0 or row >= len(self.board):
@@ -176,3 +179,13 @@ class Game:
             return Player.O
         else:
             return 0
+
+    def get_leaderboard(self):
+        # try/catch this
+        conn = connect()
+
+        lb_query = "SELECT * FROM leaderboard"
+        with conn.cursor as cursor:
+            cursor.execute(lb_query)
+            result = cursor.fetchall()
+            return result
