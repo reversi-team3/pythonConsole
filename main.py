@@ -10,10 +10,9 @@ while int(board_size) % 2 == 1:
     board_size = input("Invalid board size. Must be at least 4 and even: ")
 
 print("Type \"exit\" at any time to exit the game.")
-game = Game(int(board_size))
+game = Game()
 
-board_view = BoardConsoleView(game.board)
-game_view = GameConsoleView(board_view)
-
-controller = LocalController(game, game_view)
+controller = LocalController(game)
+game_view = GameConsoleView(game.board, controller)
+controller.set_view(game_view)
 controller.run_game()

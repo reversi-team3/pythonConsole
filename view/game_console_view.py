@@ -3,30 +3,29 @@ from model.player import player_symbol
 
 
 class GameConsoleView(GameView):
-    def __init__(self, board_view):
-        super().__init__(board_view)
+    def __init__(self, board, controller):
+        super().__init__(board, controller)
+
+    def display_board(self):
+        board_size = len(self.board)
+        header_len = board_size * 4 + 1
+        print("-" * header_len)
+        for row in range(board_size):
+            for col in range(board_size):
+                if self.board[row, col] == 0:
+                    cell = ' '
+                else:
+                    cell = player_symbol[self.board[row, col]]
+                print(f'| {cell} ', end='')
+            print('|')
+        print("-" * header_len)
 
     def display_curr_player(self, player):
         print(f"Player {player_symbol[player]}'s turn.")
 
-    # Move to controller
-    def get_move(self):
-        move = [0]
-        valid = False
-        while len(move) != 2 and not valid:
-            move = input("Enter your move (row, col): ")
-            if move == "exit":
-                return [-1, -1]
-            try:
-                move = move.split(',')
-                row = int(move[0]) - 1
-                col = int(move[1]) - 1
-                valid = True
-            except (ValueError, IndexError) as e:
-                self.display_illegal_move()
-                move = [0]
-                continue
-        return row, col
+    def request_move(self):
+        move = input("Enter your move (row, col): ")
+        return move
 
     def display_illegal_move(self):
         print("This move is illegal. Try again.")
@@ -43,3 +42,6 @@ class GameConsoleView(GameView):
             print("No legal moves remaining. Draw.")
         else:
             print(f'Player {player_symbol[winner]} has won the game! Congratulations!')
+
+    def display_exit(self):
+        print("Exiting game.")

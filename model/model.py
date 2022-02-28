@@ -3,22 +3,27 @@ from model.player import Player
 from mysql.connector import connect, Error
 from getpass import getpass
 
+
 class Game:
-    def __init__(self, board_size):
-        self.board = np.zeros((board_size, board_size), dtype=np.int)
+    def __init__(self):
+        self.board = 0
         self.curr_player = Player.X
-        self.board[int(board_size/2), int(board_size/2)
-                   ] = int(self.curr_player)
-        self.board[int(board_size/2-1), int(board_size/2 -
-                   1)] = int(self.curr_player)
-        self.board[int(board_size/2), int(board_size/2-1)
-                   ] = int(1+self.curr_player)
-        self.board[int(board_size/2-1), int(board_size/2)
-                   ] = int(1+self.curr_player)
+        self.set_board_size()
         # used for runtime efficiency of has_legal_moves()
-        self.zeros = (board_size ** 2) - 4
+        self.zeros = (self.board.size ** 2) - 4
         # should probably initialize the db server connection here and refer to it as needed
         # instead of opening/closing in every method call
+
+    def set_board_size(self, board_size=8):
+        self.board = np.zeros((board_size, board_size), dtype=np.int)
+        self.board[int(board_size / 2), int(board_size / 2)
+                   ] = int(self.curr_player)
+        self.board[int(board_size / 2 - 1), int(board_size / 2 -
+                                                1)] = int(self.curr_player)
+        self.board[int(board_size / 2), int(board_size / 2 - 1)
+                   ] = int(1 + self.curr_player)
+        self.board[int(board_size / 2 - 1), int(board_size / 2)
+                   ] = int(1 + self.curr_player)
 
     def is_legal_move(self, row, col):
         if row < 0 or row >= len(self.board):
