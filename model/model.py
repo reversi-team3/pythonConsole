@@ -1,6 +1,5 @@
 import numpy as np
 from model.player import Player
-from mysql.connector import connect, Error
 from getpass import getpass
 
 

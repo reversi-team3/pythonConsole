@@ -1,5 +1,5 @@
 import tkinter as tk
-import tkinter.messagebox
+from tkinter import messagebox
 
 from controller.local_controller import LocalController
 from model.model import Game
@@ -33,6 +33,10 @@ class GUIView(tk.Tk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.lift()
+
+    def display_exit(self, key):
+        messagebox.askquestion("Exit", "Do you want to exit?")
+        print("Gets here")
 
     def change_board_size(self, size):
         self.frames["PlayPage"] = PlayPage(parent=self.container, controller=self, board_size=size)
@@ -89,7 +93,9 @@ class SettingsPage(tk.Frame):
         options = [
             6,
             8,
-            10
+            10,
+            12,
+            14
         ]
         self.options_type = tk.StringVar()
         self.options_type.set(options[1])
@@ -118,8 +124,8 @@ class PlayPage(tk.Frame, GameView):
         # label = tk.Label(self, text="Play")
         # label.pack(side="top", pady=10)
         exit_button = tk.Button(self, text="Exit Game",
-                                command=lambda: controller.show_frame("MainPage"))
-
+                                command=lambda: self.display_exit(controller))
+        exit_button.grid(row=0, column=0, sticky='nsew')
         for i in range(board_size):
             self.rowconfigure(i, minsize=60)
             self.columnconfigure(i, minsize=60)
@@ -127,7 +133,7 @@ class PlayPage(tk.Frame, GameView):
             for j in range(board_size):
                 # command=lambda arg=(i, j): self.button_clicked(arg)
                 button = tk.Button(self, text=f'({i},{j})',)
-                button.grid(row=i, column=j, sticky='nsew')
+                button.grid(row=i+1, column=j+1, sticky='nsew')
         # exit_button.pack()
 
     def display_board(self):
@@ -140,16 +146,17 @@ class PlayPage(tk.Frame, GameView):
         pass
 
     def display_illegal_move(self):
-        pass
+        messagebox.showerror("Invalid Move", "Invalid Move - Please try again")
 
     def display_no_legal_moves(self, player):
-        pass
+        messagebox.showerror("No Legal Moves", "No Legal Moves - Other Player's Turn")
 
     def get_move(self):
         pass
 
-    def display_exit(self):
-        pass
+    def display_exit(self, controller):
+        messagebox.showerror("Exiting", "Exiting Game - Returning to Main Menu")
+        controller.show_frame("MainPage")
 
     def request_move(self):
         pass
