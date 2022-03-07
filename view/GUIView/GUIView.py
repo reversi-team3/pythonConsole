@@ -54,8 +54,9 @@ class GUIView(tk.Tk):
             # self.game_controller.run_game()
 
     def change_board_size(self, size):
-        self.frames["PlayPage"] = PlayPage(parent=self.container, controller=self, board_size=size)
+        self.frames["PlayPage"] = PlayPage(parent=self.container, controller=self, board=self.game_controller.model.board)
         self.frames["PlayPage"].grid(row=0, column=0, sticky="nsew")
+        self.game_controller.set_view(game_view.frames["PlayPage"])
         self.change_page("SettingsPage")
 
 
@@ -86,6 +87,7 @@ class MainPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
+        self.parent = parent
         label = tk.Label(self, text="Main Page")
         label.pack(side="top", pady=10)
         play_button = tk.Button(self, text="Play Game",
@@ -94,13 +96,27 @@ class MainPage(tk.Frame):
                                     command=lambda: controller.change_page("SettingsPage"))
         leaderboard_button = tk.Button(self, text="View Leaderboard",
                                        command=lambda: controller.change_page("LeaderboardPage"))
+        login_page_button = tk.Button(self, text="Sign out",
+                                      command=lambda: self.sign_out())
+        exit_button = tk.Button(self, text="Exit",
+                                      command=lambda: self.close())
         load_crashed_game_button = tk.Button(self, text="Load Crashed Game")
         play_button.pack(pady=5)
         settings_button.pack(pady=5)
         leaderboard_button.pack(pady=5)
+        login_page_button.pack(pady=5)
+        exit_button.pack(pady=5)
         load_crashed_game_button.pack(side="bottom", pady=10)
 
+    def close(self):
+        sign_out_message = messagebox.askquestion("Exiting", "Are you sure you want to exit the application?")
+        if (sign_out_message == 'yes'):
+            self.controller.destroy()
 
+    def sign_out(self):
+        sign_out_message = messagebox.askquestion("Signing out", "Are you sure you want to sign out?")
+        if (sign_out_message == 'yes'):
+            self.controller.change_page("LoginPage")
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -126,7 +142,7 @@ class SettingsPage(tk.Frame):
         return_button.pack(pady=5)
 
     def confirm_size(self):
-        if int(self.options_type.get()) != self.controller.game_controller.model.board.size:
+        if int(self.options_type.get()) != self.controller.game_controller.model.board.shape[0]:
             self.controller.game_controller.change_board_size(int(self.options_type.get()))
             self.controller.change_board_size(int(self.options_type.get()))
             tkinter.messagebox.showinfo(title="Success", message="Board size updated")
@@ -143,14 +159,12 @@ class PlayPage(tk.Frame, GameView):
         self.buttons = [[0 for x in range(self.board_size)] for y in range(self.board_size)]
         exit_button = tk.Button(self, text="Exit Game",
                                 command=lambda: self.display_exit())
-        self.invalid_move_label = tk.Label(self, text="Invalid move. Try again.", fg="red")
-        # label = tk.Label(self, text="Play")
-        # label.pack(side="top", pady=10)
+        self.invalid_move_label = tk.Label(self, text="Invalid move.\nTry again.", fg="red")
         for i in range(self.board_size):
             self.rowconfigure(i, minsize=60)
             self.columnconfigure(i, minsize=60)
         self.set_buttons()
-        exit_button.grid(row=self.board_size+1, column=self.board_size-1, sticky="nsew")
+        exit_button.grid(row=self.board_size+1, column=0, sticky="nsew")
 
     def display_board(self):
         self.invalid_move_label.grid_forget()
@@ -171,21 +185,21 @@ class PlayPage(tk.Frame, GameView):
                 # command=lambda arg=(i, j): self.button_clicked(arg)
                 button = 0
                 self.buttons.append(button)
-                self.buttons[i][j] = tk.Button(self, text=f'({i},{j})', bg="green",
+                self.buttons[i][j] = tk.Button(self, bg="green",
                                    command=lambda i=i, j=j:
                                    self.request_move(i, j))
                 self.buttons[i][j].grid(row=i, column=j, sticky='nsew')
 
     def display_curr_player(self, player):
         curr_player = tk.Label(self, text=f'Current Player:{player}')
-        curr_player.grid(row=self.board_size+1)
+        curr_player.grid(row=self.board_size+1, column=self.board_size+1)
 
     def display_winner(self, winner):
         messagebox.showinfo("Congratulations!", f'Player {winner} has won! Congratulations!')
         self.controller.change_page("MainPage")
 
     def display_illegal_move(self):
-        self.invalid_move_label.grid(row=self.board_size+1, column=self.board_size-5)
+        self.invalid_move_label.grid(row=self.board_size-1, column=self.board_size+1)
 
     def display_no_legal_moves(self, player):
         messagebox.showerror("No Legal Moves", "No Legal Moves - Other Player's Turn")
@@ -204,8 +218,9 @@ class PlayPage(tk.Frame, GameView):
         self.display_curr_player(Player.X)
 
     def display_exit(self):
-        messagebox.showinfo("Exiting", "Exiting Game - Returning to Main Menu")
-        self.controller.change_page("MainPage")
+        exit_message = messagebox.askquestion("Exiting", "Are you sure you want to exit?")
+        if(exit_message == 'yes'):
+            self.controller.change_page("MainPage")
 
 
 class LeaderboardPage(tk.Frame):
@@ -220,6 +235,10 @@ class LeaderboardPage(tk.Frame):
         players.pack(padx=10,pady=10)
         main_button.pack(pady=10)
 
+    def display_leaderboard(self):
+        users = self.controller.game_controller.get_leaderboard()
+        for x in users:
+            tk.Label(self, text=x).pack(pady=5)
 
 if __name__ == "__main__":
     game = Game()
@@ -230,6 +249,4 @@ if __name__ == "__main__":
 
     # game_view.set_controller(controller)
 
-    while(True):
-        game_view.update()
-        # controller.run_game()
+    game_view.mainloop()

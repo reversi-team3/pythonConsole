@@ -100,3 +100,6 @@ class LocalController:
                 continue
         return row, col
 
+    def get_leaderboard(self):
+
+        return
