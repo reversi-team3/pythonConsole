@@ -7,6 +7,6 @@ class Player(IntEnum):
 
 
 player_symbol = {
-    Player.X: 'X',
-    Player.O: 'O'
+    Player.X: 'black',
+    Player.O: 'white'
 }

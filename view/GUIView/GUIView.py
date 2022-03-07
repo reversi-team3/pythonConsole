@@ -1,16 +1,20 @@
 import tkinter as tk
+import tkinter.messagebox
 from tkinter import messagebox
+from typing import overload
 
 from controller.local_controller import LocalController
 from model.model import Game
+from model.player import player_symbol, Player
 from view.game_view import GameView
 # from tkinter import OptionMenu
 
 
 class GUIView(tk.Tk):
-    def __init__(self, game_controller):
+    def __init__(self, game_controller: LocalController, board):
         self.game_controller = game_controller
         tk.Tk.__init__(self)
+        self.board = board
         self.title("Reversi")
         self.container = tk.Frame(self, width=(75 * 8), height=(75 * 9))
         self.container.pack(side="top", fill="both", expand=True)
@@ -20,28 +24,37 @@ class GUIView(tk.Tk):
         self.frames = {}
         for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage):
             page_name = F.__name__
-            frame = F(parent=self.container, controller=self)
-            self.frames[page_name] = frame
+            # print(F.__class__)
+            #frame = F(parent=self.container, controller=self)
+            if F == PlayPage:
+                self.game_controller.change_board_size(8)
+                frame = F(parent=self.container, controller=self, board=self.board)
+                self.frames[page_name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
+            else:
+                frame = F(parent=self.container, controller=self)
+                self.frames[page_name] = frame
+                frame.grid(row=0, column=0, sticky="nsew")
 
-            frame.grid(row=0, column=0, sticky="nsew")
+        self.change_page("LoginPage")
 
-        self.show_frame("LoginPage")
-
+    '''
     def set_controller(self, game_controller):
         self.game_controller = game_controller
-
-    def show_frame(self, page_name):
+    '''
+    def change_page(self, page_name):
         frame = self.frames[page_name]
-        frame.lift()
-
-    def display_exit(self, key):
-        messagebox.askquestion("Exit", "Do you want to exit?")
-        print("Gets here")
+        frame.tkraise()
+        # if page_name == "PlayPage":
+            # self.frames[page_name].board_size
+            # self.frames[page_name] = PlayPage()
+            # self.game_controller.run_game()
+            # self.game_controller.run_game()
 
     def change_board_size(self, size):
         self.frames["PlayPage"] = PlayPage(parent=self.container, controller=self, board_size=size)
         self.frames["PlayPage"].grid(row=0, column=0, sticky="nsew")
-        self.show_frame("SettingsPage")
+        self.change_page("SettingsPage")
 
 
 class LoginPage(tk.Frame):
@@ -63,7 +76,7 @@ class LoginPage(tk.Frame):
         login_button.grid(row=2, column=1, sticky=tk.E, padx=5, pady=5)
 
         guest_button = tk.Button(self, text='Play as Guest', width=10,
-                                 command=lambda: controller.show_frame("MainPage"))
+                                 command=lambda: controller.change_page("MainPage"))
         guest_button.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 
 
@@ -74,14 +87,16 @@ class MainPage(tk.Frame):
         label = tk.Label(self, text="Main Page")
         label.pack(side="top", pady=10)
         play_button = tk.Button(self, text="Play Game",
-                                command=lambda: controller.show_frame("PlayPage"))
+                                command=lambda: controller.change_page("PlayPage"))
         settings_button = tk.Button(self, text="Settings",
-                                    command=lambda: controller.show_frame("SettingsPage"))
+                                    command=lambda: controller.change_page("SettingsPage"))
         leaderboard_button = tk.Button(self, text="View Leaderboard",
-                                       command=lambda: controller.show_frame("LeaderboardPage"))
-        play_button.pack()
-        settings_button.pack()
-        leaderboard_button.pack()
+                                       command=lambda: controller.change_page("LeaderboardPage"))
+        load_crashed_game_button = tk.Button(self, text="Load Crashed Game")
+        play_button.pack(pady=5)
+        settings_button.pack(pady=5)
+        leaderboard_button.pack(pady=5)
+        load_crashed_game_button.pack(side="bottom", pady=10)
 
 
 class SettingsPage(tk.Frame):
@@ -93,9 +108,7 @@ class SettingsPage(tk.Frame):
         options = [
             6,
             8,
-            10,
-            12,
-            14
+            10
         ]
         self.options_type = tk.StringVar()
         self.options_type.set(options[1])
@@ -104,7 +117,7 @@ class SettingsPage(tk.Frame):
         confirm_button = tk.Button(self, text="Confirm",
                                    command=self.confirm_size)
         return_button = tk.Button(self, text="Return",
-                                  command=lambda: controller.show_frame("MainPage"))
+                                  command=lambda: controller.change_page("MainPage"))
         drop_down_label.pack()
         drop_down.pack()
         confirm_button.pack(pady=5)
@@ -118,48 +131,70 @@ class SettingsPage(tk.Frame):
 
 
 class PlayPage(tk.Frame, GameView):
-    def __init__(self, parent, controller, board_size=8):
+    def __init__(self, parent, controller, board=None):
         tk.Frame.__init__(self, parent)
+        GameView.__init__(self, board, controller.game_controller)
         self.controller = controller
+        self.board = board
+        self.board_size = board.shape[0]
+        self.buttons = [[0 for x in range(self.board_size)] for y in range(self.board_size)]
+        exit_button = tk.Button(self, text="Exit Game",
+                                command=lambda: self.display_exit())
         # label = tk.Label(self, text="Play")
         # label.pack(side="top", pady=10)
-        exit_button = tk.Button(self, text="Exit Game",
-                                command=lambda: self.display_exit(controller))
-        exit_button.grid(row=0, column=0, sticky='nsew')
-        for i in range(board_size):
+        for i in range(self.board_size):
             self.rowconfigure(i, minsize=60)
             self.columnconfigure(i, minsize=60)
-        for i in range(board_size):
-            for j in range(board_size):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
                 # command=lambda arg=(i, j): self.button_clicked(arg)
-                button = tk.Button(self, text=f'({i},{j})',)
-                button.grid(row=i+1, column=j+1, sticky='nsew')
-        # exit_button.pack()
+                button = 0
+                self.buttons.append(button)
+                self.buttons[i][j] = tk.Button(self, text=f'({i},{j})',
+                                   command=lambda i=i, j=j:
+                                   self.request_move(i, j))
+                self.buttons[i][j].grid(row=i, column=j, sticky='nsew')
+        curr_player = tk.Label(self, text="Turn:")
+        curr_player.grid(row=self.board_size+1, column=0)
+        exit_button.grid(row=self.board_size+1, column=self.board_size-1, sticky="nsew")
 
     def display_board(self):
-        pass
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                if self.board[i][j] == Player.X and self.buttons[i][j].cget('bg') != player_symbol[self.board[i][j]]:
+                    self.buttons[i][j].configure(bg="black")
+                    self.buttons[i][j].configure(command=None)
+                elif self.board[i][j] == Player.O and self.buttons[i][j].cget('bg') != player_symbol[self.board[i][j]]:
+                    self.buttons[i][j].configure(bg="white")
+                    # slightly worse performance to call this on every color change
+                    self.buttons[i][j].configure(command=None)
+        self.update()
 
     def display_curr_player(self, player):
-        pass
+        curr_player = tk.Label(self, text=f'Current Player:{player}')
+        curr_player.grid(row=self.board_size+1, column=self.board_size)
 
     def display_winner(self, winner):
         pass
 
     def display_illegal_move(self):
-        messagebox.showerror("Invalid Move", "Invalid Move - Please try again")
+        pass
 
     def display_no_legal_moves(self, player):
-        messagebox.showerror("No Legal Moves", "No Legal Moves - Other Player's Turn")
-
-    def get_move(self):
         pass
 
-    def display_exit(self, controller):
-        messagebox.showerror("Exiting", "Exiting Game - Returning to Main Menu")
-        controller.show_frame("MainPage")
+    def request_move(self, i, j):
+        i = i
+        j = j
+        self.controller.game_controller.play_turn(i, j)
+        # return f'{i},{j}'
 
-    def request_move(self):
+    def return_move(self):
         pass
+
+    def display_exit(self):
+        messagebox.showinfo("Exiting", "Exiting Game - Returning to Main Menu")
+        self.controller.change_page("MainPage")
 
 
 class LeaderboardPage(tk.Frame):
@@ -169,7 +204,7 @@ class LeaderboardPage(tk.Frame):
         label = tk.Label(self, text="Leaderboard")
         label.pack(side="top", pady=10)
         main_button = tk.Button(self, text="Return to Main page",
-                                command=lambda: controller.show_frame("MainPage"))
+                                command=lambda: controller.change_page("MainPage"))
         players = tk.Label(self, text="No players currently on leaderboard", font=14)
         players.pack(padx=10,pady=10)
         main_button.pack(pady=10)
@@ -179,8 +214,11 @@ if __name__ == "__main__":
     game = Game()
 
     controller = LocalController(game)
-    game_view = GUIView(controller)
+    game_view = GUIView(controller, game.board)
+    controller.set_view(game_view.frames["PlayPage"])
 
-    game_view.set_controller(controller)
+    # game_view.set_controller(controller)
 
-    game_view.mainloop()
+    while(True):
+        game_view.update()
+        # controller.run_game()

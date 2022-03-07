@@ -3,7 +3,7 @@ from model.player import player_symbol
 
 
 class GameConsoleView(GameView):
-    def __init__(self, board, controller):
+    def __init__(self, board, controller: GameView):
         super().__init__(board, controller)
 
     def display_board(self):
@@ -23,7 +23,7 @@ class GameConsoleView(GameView):
     def display_curr_player(self, player):
         print(f"Player {player_symbol[player]}'s turn.")
 
-    def request_move(self):
+    def request_move(self, i=None, j=None):
         move = input("Enter your move (row, col): ")
         return move
 
