@@ -9,7 +9,6 @@ from model.player import player_symbol, Player
 from view.game_view import GameView
 # from tkinter import OptionMenu
 
-
 class GUIView(tk.Tk):
     def __init__(self, game_controller: LocalController, board):
         self.game_controller = game_controller
@@ -22,7 +21,7 @@ class GUIView(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage):
+        for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage, RegisterPage):
             page_name = F.__name__
             # print(F.__class__)
             #frame = F(parent=self.container, controller=self)
@@ -82,6 +81,59 @@ class LoginPage(tk.Frame):
                                  command=lambda: controller.change_page("MainPage"))
         guest_button.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 
+        register_button = tk.Button(self, text='Sign Up', width=20,
+                                    command=lambda: controller.change_page("RegisterPage"))
+        register_button.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
+
+
+class RegisterPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        # username
+        username_label = tk.Label(self, text='Username:')
+        username_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        username_entry = tk.Entry(self)
+        username_entry.grid(row=0, column=1, sticky=tk.E, padx=5, pady=5)
+        # password
+
+
+        password_label = tk.Label(self, text='Password:')
+        password_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        password_entry = tk.Entry(self, show='*')
+        password_entry.grid(row=1, column=1, sticky=tk.E, padx=5, pady=5)
+
+        register_button = tk.Button(self, text='Register Account', width=15,
+                                    command=lambda: [self.write_File(username_entry.get(), password_entry.get()), self.clear_cells(username_entry, password_entry)])
+        register_button.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
+
+        back_button = tk.Button(self, text='Back to Login', width = 20,
+                                command=lambda: controller.change_page("LoginPage"))
+
+        back_button.grid(row = 2, column = 1, sticky=tk.W, padx=5, pady=5)
+
+    def write_File(self, username_input,password_input):
+        if username_input != '' and password_input != '':
+            with open('Registration.txt', 'a') as file:
+                file.write(username_input + "\n")
+                file.write(password_input + "\n" + "\n")
+                file.close()
+                print("Successful")
+            # registration_label = tk.Label(self, text='         Registration Success                      ', fg='green')
+            # registration_label.grid(row=5, column=1, sticky=tk.W, padx=20, pady=5)
+            tkinter.messagebox.showinfo(title="Success", message="Registration Successful")
+        else:
+            # error_label = tk.Label(self, text='    Username/Password cannot be blank', fg='red')
+            # error_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+            tkinter.messagebox.showinfo(title="Error", message="Username/Password CANNOT be blank")
+
+    def remove_label(self, label):
+        label.config(text ="")
+
+    def clear_cells(self, username, password):
+        username.delete(0, tk.END)
+        password.delete(0, tk.END)
+
 
 class MainPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -117,6 +169,7 @@ class MainPage(tk.Frame):
         sign_out_message = messagebox.askquestion("Signing out", "Are you sure you want to sign out?")
         if (sign_out_message == 'yes'):
             self.controller.change_page("LoginPage")
+
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
