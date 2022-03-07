@@ -45,7 +45,9 @@ class GUIView(tk.Tk):
     def change_page(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
-        # if page_name == "PlayPage":
+        if page_name == "PlayPage":
+            frame.start_game()
+            frame.display_board()
             # self.frames[page_name].board_size
             # self.frames[page_name] = PlayPage()
             # self.game_controller.run_game()
@@ -134,31 +136,24 @@ class PlayPage(tk.Frame, GameView):
     def __init__(self, parent, controller, board=None):
         tk.Frame.__init__(self, parent)
         GameView.__init__(self, board, controller.game_controller)
+        self.parent = parent
         self.controller = controller
         self.board = board
         self.board_size = board.shape[0]
         self.buttons = [[0 for x in range(self.board_size)] for y in range(self.board_size)]
         exit_button = tk.Button(self, text="Exit Game",
                                 command=lambda: self.display_exit())
+        self.invalid_move_label = tk.Label(self, text="Invalid move. Try again.", fg="red")
         # label = tk.Label(self, text="Play")
         # label.pack(side="top", pady=10)
         for i in range(self.board_size):
             self.rowconfigure(i, minsize=60)
             self.columnconfigure(i, minsize=60)
-        for i in range(self.board_size):
-            for j in range(self.board_size):
-                # command=lambda arg=(i, j): self.button_clicked(arg)
-                button = 0
-                self.buttons.append(button)
-                self.buttons[i][j] = tk.Button(self, text=f'({i},{j})',
-                                   command=lambda i=i, j=j:
-                                   self.request_move(i, j))
-                self.buttons[i][j].grid(row=i, column=j, sticky='nsew')
-        curr_player = tk.Label(self, text="Turn:")
-        curr_player.grid(row=self.board_size+1, column=0)
+        self.set_buttons()
         exit_button.grid(row=self.board_size+1, column=self.board_size-1, sticky="nsew")
 
     def display_board(self):
+        self.invalid_move_label.grid_forget()
         for i in range(self.board_size):
             for j in range(self.board_size):
                 if self.board[i][j] == Player.X and self.buttons[i][j].cget('bg') != player_symbol[self.board[i][j]]:
@@ -170,27 +165,43 @@ class PlayPage(tk.Frame, GameView):
                     self.buttons[i][j].configure(command=None)
         self.update()
 
+    def set_buttons(self):
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                # command=lambda arg=(i, j): self.button_clicked(arg)
+                button = 0
+                self.buttons.append(button)
+                self.buttons[i][j] = tk.Button(self, text=f'({i},{j})', bg="green",
+                                   command=lambda i=i, j=j:
+                                   self.request_move(i, j))
+                self.buttons[i][j].grid(row=i, column=j, sticky='nsew')
+
     def display_curr_player(self, player):
         curr_player = tk.Label(self, text=f'Current Player:{player}')
-        curr_player.grid(row=self.board_size+1, column=self.board_size)
+        curr_player.grid(row=self.board_size+1)
 
     def display_winner(self, winner):
-        pass
+        messagebox.showinfo("Congratulations!", f'Player {winner} has won! Congratulations!')
+        self.controller.change_page("MainPage")
 
     def display_illegal_move(self):
-        pass
+        self.invalid_move_label.grid(row=self.board_size+1, column=self.board_size-5)
 
     def display_no_legal_moves(self, player):
-        pass
+        messagebox.showerror("No Legal Moves", "No Legal Moves - Other Player's Turn")
 
+    # rename to make move
     def request_move(self, i, j):
         i = i
         j = j
         self.controller.game_controller.play_turn(i, j)
         # return f'{i},{j}'
 
-    def return_move(self):
-        pass
+    def start_game(self):
+        self.controller.game_controller.reset_game()
+        self.board = self.controller.game_controller.model.board
+        self.set_buttons()
+        self.display_curr_player(Player.X)
 
     def display_exit(self):
         messagebox.showinfo("Exiting", "Exiting Game - Returning to Main Menu")

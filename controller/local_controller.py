@@ -59,7 +59,7 @@ class LocalController:
                     self.view.display_no_legal_moves(0)
                     game_ended = True
 
-        if (game_ended):
+        if game_ended:
             self.view.display_board()
             winner = self.model.get_winner()
             self.view.display_winner(winner)
@@ -72,6 +72,12 @@ class LocalController:
             return -1
         if self.view is not None:
             self.model.set_board_size(new_size)
+
+    def reset_game(self):
+        size = self.model.board.shape[0]
+        self.model = Game()
+        self.model.set_board_size(size)
+        # self.model.set_board_size(self.model.board.shape[0])
 
     def set_view(self, view: GameView):
         self.view = view
