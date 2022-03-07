@@ -10,7 +10,7 @@ class Game:
         self.curr_player = Player.X
         self.set_board_size()
         # used for runtime efficiency of has_legal_moves()
-        self.zeros = (self.board.size ** 2) - 4
+        self.zeros = self.board.size - 4
         # should probably initialize the db server connection here and refer to it as needed
         # instead of opening/closing in every method call
 
@@ -178,6 +178,7 @@ class Game:
                 if self.board[i][j] == Player.O:
                     player_two_disks += 1
 
+        # update wins and losses for winner
         if player_one_disks > player_two_disks:
             return Player.X
         elif player_one_disks < player_two_disks:
