@@ -2,6 +2,7 @@ import tkinter as tk
 import tkinter.messagebox
 from tkinter import messagebox
 
+from controller.controller_factory import ControllerFactory
 from controller.local_controller import LocalController
 from model.game_model import Game
 from model.player import player_symbol, Player
@@ -11,7 +12,7 @@ from database.DBManager import DBManager
 
 class GUIView(tk.Tk):
     def __init__(self, game_controller: LocalController, board):
-        self.game_controller = game_controller
+        self.game_controller = None
         tk.Tk.__init__(self)
         self.board = board
         self.title("Reversi")
@@ -146,7 +147,6 @@ class LoginPage(tk.Frame):
         user_not_found_screen.destroy()
         
 
-
 class RegisterPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -236,7 +236,7 @@ class MainPage(tk.Frame):
         login_page_button = tk.Button(self, text="Sign out",
                                       command=lambda: self.sign_out())
         exit_button = tk.Button(self, text="Exit",
-                                      command=lambda: self.close())
+                                command=lambda: self.close())
         load_crashed_game_button = tk.Button(self, text="Load Crashed Game")
         play_button.pack(pady=5)
         settings_button.pack(pady=5)
@@ -254,6 +254,25 @@ class MainPage(tk.Frame):
         sign_out_message = messagebox.askquestion("Signing out", "Are you sure you want to sign out?")
         if (sign_out_message == 'yes'):
             self.controller.change_page("LoginPage")
+
+
+class GameModePage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.factory = ControllerFactory()
+        label = tk.Label(self, text="Leaderboard")
+        label.pack(side="top", pady=10)
+        ai_button = tk.Button(self, text="AI Mode",
+                                  command=lambda: self.set_mode('ai'))
+        local_button = tk.Button(self, text="Local Mode", command=lambda : self.set_mode('local'))
+        ai_button.pack(pady=5)
+        local_button.pack(pady=5)
+
+    def set_mode(self, mode):
+        self.controller.game_controller = self.factory.get_controller(mode)
+
+        controller.change_page("PlayPage")
 
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -386,7 +405,7 @@ class LeaderboardPage(tk.Frame):
 
 if __name__ == "__main__":
     game = Game()
-    db = DBManage()
+    db = DBManager()
     controller = LocalController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
