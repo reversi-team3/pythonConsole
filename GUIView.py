@@ -21,7 +21,7 @@ class GUIView(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage, RegisterPage):
+        for F in (LoginPage, MainPage, SettingsPage, PlayPage, GameModePage, RegisterPage):
             page_name = F.__name__
             # print(F.__class__)
             #frame = F(parent=self.container, controller=self)
@@ -228,7 +228,7 @@ class MainPage(tk.Frame):
         label = tk.Label(self, text="Main Page")
         label.pack(side="top", pady=10)
         play_button = tk.Button(self, text="Play Game",
-                                command=lambda: controller.change_page("PlayPage"))
+                                command=lambda: controller.change_page("GameModePage"))
         settings_button = tk.Button(self, text="Settings",
                                     command=lambda: controller.change_page("SettingsPage"))
         leaderboard_button = tk.Button(self, text="View Leaderboard",

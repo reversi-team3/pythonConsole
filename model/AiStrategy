@@ -1,7 +1,0 @@
-from abc import ABC, abstractmethod
-
-
-class AiStrategy(ABC):
-    @abstractmethod
-    def determine_move(self, board):
-        pass

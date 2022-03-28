@@ -15,7 +15,7 @@ class AiController(Controller):
         pass
 
     def get_move(self):
-        pass
+        return self.ai_difficulty.determine_move(self.model.board)
 
     def set_difficulty(self, ai_difficulty: AiStrategy):
         pass
