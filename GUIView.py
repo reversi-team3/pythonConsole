@@ -3,7 +3,7 @@ import tkinter.messagebox
 from tkinter import messagebox
 
 from controller.local_controller import LocalController
-from model.model import Game
+from model.game_model import Game
 from model.player import player_symbol, Player
 from view.game_view import GameView
 from database.DBManager import DBManager

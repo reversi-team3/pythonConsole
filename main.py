@@ -1,5 +1,5 @@
 from controller.local_controller import LocalController
-from model.model import Game
+from model.game_model import Game
 from view.game_console_view import GameConsoleView
 #main.py
 board_size = input("Welcome to Reversi!\n"
