@@ -1,14 +1,13 @@
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import messagebox
-from typing import overload
 
 from controller.local_controller import LocalController
 from model.model import Game
 from model.player import player_symbol, Player
 from view.game_view import GameView
+from database.DBManager import DBManager
 # from tkinter import OptionMenu
-
 
 class GUIView(tk.Tk):
     def __init__(self, game_controller: LocalController, board):
@@ -22,7 +21,7 @@ class GUIView(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage):
+        for F in (LoginPage, MainPage, SettingsPage, PlayPage, LeaderboardPage, RegisterPage):
             page_name = F.__name__
             # print(F.__class__)
             #frame = F(parent=self.container, controller=self)
@@ -75,12 +74,150 @@ class LoginPage(tk.Frame):
         password_entry = tk.Entry(self, show='*')
         password_entry.grid(row=1, column=1, sticky=tk.E, padx=5, pady=5)
         # login button
-        login_button = tk.Button(self, text='Login', width=10)
+        login_button = tk.Button(self, text='Login', width=10,
+                                command=lambda: [self.login_verify(username_entry.get(), password_entry.get())])
         login_button.grid(row=2, column=1, sticky=tk.E, padx=5, pady=5)
 
         guest_button = tk.Button(self, text='Play as Guest', width=10,
                                  command=lambda: controller.change_page("MainPage"))
         guest_button.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
+
+        register_button = tk.Button(self, text='Sign Up', width=20,
+                                    command=lambda: controller.change_page("RegisterPage"))
+        register_button.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
+
+    def login_verify(self,username, password):
+        rows = db.checkPlayer(username)
+        playerExist = len(rows)
+        for row in rows:
+            pw1 = row[0]
+        print(playerExist)
+
+        if playerExist:
+            if pw1 == password:
+                self.login_sucess()
+            else:
+                self.password_not_recognised()
+
+        else:
+            self.user_not_found()
+
+    def login_sucess(self):
+        global login_success_screen
+        login_success_screen = tk.Tk()
+        login_success_screen.title("Success")
+        login_success_screen.geometry("150x100")
+        tk.Label(login_success_screen, text="Login Success").pack()
+        tk.Button(login_success_screen, text="OK",
+            command=self.delete_login_success).pack()
+            
+    def password_not_recognised(self):
+        global password_not_recog_screen
+        password_not_recog_screen = tk.Tk()
+        password_not_recog_screen.title("Success")
+        password_not_recog_screen.geometry("150x100")
+        tk.Label(password_not_recog_screen, text="Invalid Password ").pack()
+        tk.Button(password_not_recog_screen, text="OK",
+            command=self.delete_password_not_recognised).pack()
+
+
+    def user_not_found(self):
+        global user_not_found_screen
+        user_not_found_screen = tk.Tk()
+        user_not_found_screen.title("Success")
+        user_not_found_screen.geometry("150x100")
+        tk.Label(user_not_found_screen, text="User Not Found").pack()
+        tk.Button(user_not_found_screen, text="OK",
+            command=self.delete_user_not_found_screen).pack()
+
+    # Deleting popups
+
+
+    def delete_login_success(self):
+        login_success_screen.destroy()
+        self.controller.change_page("MainPage")
+
+
+    def delete_password_not_recognised(self):
+        password_not_recog_screen.destroy()
+
+
+    def delete_user_not_found_screen(self):
+        user_not_found_screen.destroy()
+        
+
+
+class RegisterPage(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        # username
+        username_label = tk.Label(self, text='Username:')
+        username_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
+        username_entry = tk.Entry(self)
+        username_entry.grid(row=0, column=1, sticky=tk.E, padx=5, pady=5)
+        # password
+
+
+        password_label = tk.Label(self, text='Password:')
+        password_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
+        password_entry = tk.Entry(self, show='*')
+        password_entry.grid(row=1, column=1, sticky=tk.E, padx=5, pady=5)
+
+        register_button = tk.Button(self, text='Register Account', width=15,
+                                    command=lambda: [self.write_File(username_entry.get(), password_entry.get()), self.clear_cells(username_entry, password_entry)])
+        register_button.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
+
+        back_button = tk.Button(self, text='Back to Login', width = 20,
+                                command=lambda: controller.change_page("LoginPage"))
+
+        back_button.grid(row = 2, column = 1, sticky=tk.W, padx=5, pady=5)
+
+    def write_File(self, username_input,password_input):
+        # registration_label = tk.Label(self, text = '')
+        # registration_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+        # error_label = tk.Label(self, text = '')
+        # error_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
+        try:
+            if username_input != '' and password_input != '':
+                # blank_label = tk.Label(self, text = '                                 ')
+                # blank_label.grid(row = 5, column=1, sticky=tk.W, padx=5, pady=5)
+                # with open('Registration.txt', 'a') as file:
+                #     file.write(username_input + "\n")
+                #     file.write(password_input + "\n" + "\n")
+                #     file.close()
+                #     print ("Successful")
+                db.addPlayer(username_input, password_input)
+
+
+
+                registration_label = tk.Label(self, text='         Registration Success                      ', fg='green')
+                registration_label.grid(row=5, column=1, sticky=tk.W, padx=20, pady=5)
+            else:
+                error_label = tk.Label(self, text = '    Username/Password cannot be blank', fg = 'red')
+                error_label.grid(row = 5, column=1, sticky=tk.W, padx=5, pady=5)
+                #error_label.after(1000, error_label.destroy())
+        except:
+            self.failed_reg()
+
+    def failed_reg(self):
+        global failed_reg_screen
+        failed_reg_screen = tk.Tk()
+        failed_reg_screen.title("Success")
+        failed_reg_screen.geometry("150x100")
+        tk.Label(failed_reg_screen, text="Duplicated Username").pack()
+        tk.Button(failed_reg_screen, text="OK",
+            command=self.delete_failed_reg).pack()
+
+    def delete_failed_reg(self):
+        failed_reg_screen.destroy()
+
+    def remove_label(self, label):
+        label.config(text ="")
+
+    def clear_cells(self, username, password):
+        username.delete(0, tk.END)
+        password.delete(0, tk.END)
 
 
 class MainPage(tk.Frame):
@@ -117,6 +254,7 @@ class MainPage(tk.Frame):
         sign_out_message = messagebox.askquestion("Signing out", "Are you sure you want to sign out?")
         if (sign_out_message == 'yes'):
             self.controller.change_page("LoginPage")
+
 class SettingsPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
@@ -231,18 +369,24 @@ class LeaderboardPage(tk.Frame):
         label.pack(side="top", pady=10)
         main_button = tk.Button(self, text="Return to Main page",
                                 command=lambda: controller.change_page("MainPage"))
-        players = tk.Label(self, text="No players currently on leaderboard", font=14)
-        players.pack(padx=10,pady=10)
         main_button.pack(pady=10)
 
-    def display_leaderboard(self):
-        users = self.controller.game_controller.get_leaderboard()
-        for x in users:
+
+    
+        rows = db.checkRank()
+
+        # for i, name in enumerate(rows):
+        #     db.updateLeaderboard(name,i+1)
+
+
+        # leaderboard = db.getLeaderboard()
+        # users = self.controller.game_controller.get_leaderboard()
+        for x in rows:
             tk.Label(self, text=x).pack(pady=5)
 
 if __name__ == "__main__":
     game = Game()
-
+    db = DBManage()
     controller = LocalController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
