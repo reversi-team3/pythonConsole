@@ -3,8 +3,18 @@ from getpass import getpass
 
 
 class DBManager:
+    __instance = None
+
+    @staticmethod
+    def get_instance():
+        if DBManager.__instance is None:
+            DBManager.__instance = DBManager()
+        return DBManager.__instance
+
     def __init__(self):
         #     self.conn = None
+        if DBManager.__instance is not None:
+            raise Exception("This class is a singleton")
 
         try:
             conn = connect(
@@ -20,7 +30,7 @@ class DBManager:
                     DROP TABLE IF EXISTS disk;
                     DROP TABLE IF EXISTS game;
                     DROP TABLE IF EXISTS player;
-                    
+
                     CREATE TABLE IF NOT EXISTS player(
                     username char(255),
                     pw char(255),
@@ -51,7 +61,7 @@ class DBManager:
                     color char(255),
                     foreign key (g_id) references game(g_id)
                     );
-                    
+
                     INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user2', '1234', 29, 0,72,22);
                     INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user3', '1234', 29, 100,2,23);
                     INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user4', '1234', 12, 15,23,24);
@@ -81,18 +91,17 @@ class DBManager:
             database="REVERSIDB1"
         )
 
-
     # def dummyPlayer(self):
     #     query = "INSERT INTO player (username, pw) VALUES (%s,%s)"
     #     with self.con.cursor() as cursor:
-            
+
     #         cursor.execute(query,('kihang','kim'))
     #         self.con.commit()
 
     # def get_player(self):
     #     query1 = "SELECT * FROM Players"
-        # with self.conn.cursor() as cursor:
-        #     cursor.execute(query1)
+    # with self.conn.cursor() as cursor:
+    #     cursor.execute(query1)
 
     def addPlayer(self, username, pw):
         query = "INSERT INTO player (username, pw) VALUES (%s, %s)"
