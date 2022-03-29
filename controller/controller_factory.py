@@ -1,4 +1,4 @@
-from controller.controller import Controller
+from controller.abstract_controller import Controller
 from controller.ai_controller import AiController
 from controller.local_controller import LocalController
 from model.game_model import Game
@@ -10,4 +10,4 @@ class ControllerFactory:
             return AiController(model)
         elif controller_type == 'local':
             return LocalController(model)
-        raise ValueError('Unknown shape type')
+        raise ValueError('Unknown controller type')
