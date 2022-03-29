@@ -5,7 +5,7 @@ from view.game_view import GameView
 
 class LocalController(Controller): # noqa
     def __init__(self, model: Game):
-        super.init(model)
+        super().__init__(model)
 
     def run_game(self):
         game_ended = False
@@ -40,32 +40,8 @@ class LocalController(Controller): # noqa
         winner = self.model.get_winner()
         self.view.display_winner(winner)
 
-    def play_turn(self, row, col):
-        game_ended = False
-        while not self.model.is_legal_move(row, col):
-            self.view.display_illegal_move()
-            return
+    # def play_turn(self, row, col):
 
-        self.model.make_move(row, col)
-        if self.model.is_board_full():
-            game_ended = True
-        else:
-            self.model.change_turn()
-            # if there are no legal moves for both players, game ends
-            if not self.model.has_legal_moves():
-                self.view.display_no_legal_moves(self.model.curr_player)
-                self.model.change_turn()
-                if not self.model.has_legal_moves():
-                    self.view.display_no_legal_moves(0)
-                    game_ended = True
-
-        if game_ended:
-            self.view.display_board()
-            winner = self.model.get_winner()
-            self.view.display_winner(winner)
-        else:
-            self.view.display_board()
-            self.view.display_curr_player(self.model.curr_player)
 
     def get_move(self):
         move = [0]

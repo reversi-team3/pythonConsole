@@ -1,5 +1,5 @@
 import numpy as np
-from game_model.player import Player
+from model.player import Player
 #from mysql.connector import connect, Error
 from getpass import getpass
 
@@ -25,21 +25,22 @@ class Game:
         self.board[int(board_size / 2 - 1), int(board_size / 2)
                    ] = int(1 + self.curr_player)
 
-    def is_legal_move(self, row, col):
-        if row < 0 or row >= len(self.board):
+    @staticmethod
+    def is_legal_move(board, curr_turn, row, col):
+        if row < 0 or row >= len(board):
             return False
-        if col < 0 or col >= len(self.board):
+        if col < 0 or col >= len(board):
             return False
-        if self.board[row, col] != 0:
+        if board[row, col] != 0:
             return False
 
         else:
             # Generating the list of neighbours
             neighbour = False
             neighbours = []
-            for i in range(max(0, row-1), min(row+2, len(self.board))):
-                for j in range(max(0, col-1), min(col+2, len(self.board))):
-                    if self.board[i][j] != 0:
+            for i in range(max(0, row-1), min(row+2, len(board))):
+                for j in range(max(0, col-1), min(col+2, len(board))):
+                    if board[i][j] != 0:
                         neighbour = True
                         neighbours.append([i, j])
             # If there's no neighbours, it's an invalid move
@@ -55,7 +56,7 @@ class Game:
 
                     # If the neighbour colour is equal to your colour, it doesn't form a line
                     # Go onto the next neighbour
-                    if self.board[neighbor_x][neighbor_y] == self.curr_player:
+                    if board[neighbor_x][neighbor_y] == curr_turn:
                         continue
                     else:
                         # Direction of the line
@@ -64,12 +65,12 @@ class Game:
                         temp_x = neighbor_x
                         temp_y = neighbor_y
 
-                        while 0 <= temp_x < len(self.board) and 0 <= temp_y < len(self.board):
+                        while 0 <= temp_x < len(board) and 0 <= temp_y < len(board):
                             # if empty tile, no line can be formed
-                            if self.board[temp_x][temp_y] == 0:
+                            if board[temp_x][temp_y] == 0:
                                 break
                             # Line formed
-                            if self.board[temp_x][temp_y] == self.curr_player:
+                            if board[temp_x][temp_y] == curr_turn:
                                 valid = True
                                 break
                             # Move the index according to the direction of the line
@@ -77,12 +78,13 @@ class Game:
                             temp_y += y_increment
                 return valid
 
-    def make_move(self, row, col):
-        self.board[row, col] = int(self.curr_player)
+    @staticmethod
+    def make_move(board, curr_turn, row, col):
+        board[row, col] = int(curr_turn)
         neighbours = []
-        for i in range(max(0, row-1), min(row+2, len(self.board))):
-            for j in range(max(0, col-1), min(col+2, len(self.board))):
-                if self.board[i][j] != 0:
+        for i in range(max(0, row - 1), min(row + 2, len(board))):
+            for j in range(max(0, col - 1), min(col + 2, len(board))):
+                if board[i][j] != 0:
                     neighbours.append([i, j])
 
         # Which tiles to flip
@@ -94,26 +96,26 @@ class Game:
             neighbor_x = neighbour[0]
             neighbor_y = neighbour[1]
             # Check if the neighbour is of a different colour - it must be to form a line
-            if self.board[neighbor_x][neighbor_y] != self.curr_player:
+            if board[neighbor_x][neighbor_y] != curr_turn:
                 # The path of each individual line
                 path = []
 
                 # Determining direction to move, will be from -1 to 1
-                x_increment = neighbor_x-row
-                y_increment = neighbor_y-col
+                x_increment = neighbor_x - row
+                y_increment = neighbor_y - col
 
                 temp_x = neighbor_x
                 temp_y = neighbor_y
 
                 # While we are in the bounds of the board
-                while 0 <= temp_x < len(self.board) and 0 <= temp_y < len(self.board):
+                while 0 <= temp_x < len(board) and 0 <= temp_y < len(board):
                     path.append([temp_x, temp_y])
-                    value = self.board[temp_x][temp_y]
+                    value = board[temp_x][temp_y]
                     # If we reach a blank tile, we're done and there's no line
                     if value == 0:
                         break
                     # If we reach a tile of the player's colour, a line is formed
-                    if value == self.curr_player:
+                    if value == curr_turn:
                         # Append all of our path tiles to the convert array
                         for tile in path:
                             flip.append(tile)
@@ -125,8 +127,8 @@ class Game:
 
         # Convert all the appropriate tiles
         for tile in flip:
-            self.board[tile[0]][tile[1]] = self.curr_player
-            self.zeros -= 1
+            board[tile[0]][tile[1]] = curr_turn
+            # re-implement zeros
 
     def has_legal_moves(self):
         """
@@ -135,7 +137,7 @@ class Game:
         if self.zeros >= len(self.board):
             for i in range(len(self.board)):
                 for j in range(len(self.board)):
-                    if self.board[i][j] == 0 and self.is_legal_move(i, j):
+                    if self.board[i][j] == 0 and Game.is_legal_move(self.board, self.curr_player, i, j):
                         return True
         else:
             for i in range(len(self.board)):
@@ -144,7 +146,7 @@ class Game:
                         zeros = self.has_surrounding_empty_tile(i, j)
                         if zeros:
                             for zero in zeros:
-                                if self.is_legal_move(zero[0], zero[1]):
+                                if Game.is_legal_move(self.board, self.curr_player, zero[0], zero[1]):
                                     return True
             return False
 
