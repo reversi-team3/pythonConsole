@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+
 from model.game_model import Game
 from view.game_view import GameView
 
@@ -17,7 +18,7 @@ class Controller(ABC):
         game_ended = False
         while not self.model.is_legal_move(self.model.board, self.model.curr_player, row, col):
             self.view.display_illegal_move()
-            return
+            return -1
 
         self.model.make_move(self.model.board, self.model.curr_player, row, col)
         if self.model.is_board_full():

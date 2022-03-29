@@ -1,4 +1,4 @@
-from controller.controller import Controller
+from controller.abstract_controller import Controller
 from model.game_model import Game
 from view.game_view import GameView
 

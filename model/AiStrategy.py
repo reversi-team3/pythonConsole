@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-
 import numpy
 import numpy as np
-
 from model.game_model import Game
 from model.player import Player
 
@@ -18,10 +16,7 @@ class AiStrategy(ABC):
         for move in valid_moves:
             val = self.minimax(board, move, depth, Player.O, alpha, beta)
             move_values.append(val)
-        print(move_values)
         index = move_values.index(max(move_values))
-        print(index)
-        print(valid_moves)
         return valid_moves[index]
 
     def get_move_list(self, board):
@@ -47,9 +42,6 @@ class AiStrategy(ABC):
 
     def minimax(self, board, curr_move, depth, player, alpha, beta):
         board_copy = np.copy(board)
-        # print(board_copy)
-        # print(depth)
-#       numpy.copyto(board_copy, board)
         Game.make_move(board_copy, player, curr_move[0], curr_move[1])
 
         if depth <= 0 or not numpy.any(board_copy == 0):
@@ -63,9 +55,6 @@ class AiStrategy(ABC):
                 if max_val >= beta:
                     return max_val
                 alpha = max(alpha, max_val)
-                # alpha = max(alpha, val)
-                # if beta <= alpha:
-                #     break
             return max_val
         else:
             min_val = 999999999
@@ -76,12 +65,4 @@ class AiStrategy(ABC):
                 if min_val <= alpha:
                     return min_val
                 beta = min(beta, min_val)
-                # beta = min(beta, val)
-                # if beta <= alpha:
-                #     break
             return min_val
-
-
-
-
-

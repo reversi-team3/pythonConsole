@@ -1,6 +1,6 @@
 import time
 
-from controller.controller import Controller
+from controller.abstract_controller import Controller
 from model.AiStrategy import AiStrategy
 from model.game_model import Game
 from model.player import Player
@@ -15,12 +15,17 @@ class AiController(Controller):
         pass
 
     def play_turn(self, row, col):
-        super().play_turn(row, col)
+        if super().play_turn(row, col) == -1:
+            return
         # self.view.display_curr_player(Player.O)
         time.sleep(.5)
-        if not self.model.is_board_full():
+        while not self.model.is_board_full() and self.model.curr_player == Player.O:
             move = self.get_move()
-            super().play_turn(move[0], move[1])
+            if move[0] == -1:
+                return
+            else:
+                super().play_turn(move[0], move[1])
+
 
     def get_move(self):
         move = self.ai_difficulty.determine_move(self.model.board)
