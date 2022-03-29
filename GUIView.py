@@ -5,6 +5,8 @@ from tkinter import messagebox
 from controller.controller_factory import ControllerFactory
 from controller.local_controller import LocalController
 from model.EasyAi import EasyAi
+from model.HardAi import HardAi
+from model.MediumAi import MediumAi
 from model.game_model import Game
 from model.player import player_symbol, Player
 from view.game_view import GameView
@@ -262,18 +264,35 @@ class GameModePage(tk.Frame):
         self.controller = controller
         self.parent = parent
         self.factory = ControllerFactory()
-        label = tk.Label(self, text="Leaderboard")
+        label = tk.Label(self, text="Select game mode")
+        options = [
+            "Easy",
+            "Medium",
+            "Hard"
+        ]
+        self.options_type = tk.StringVar()
+        self.options_type.set(options[0])
+        drop_down = tk.OptionMenu(self, self.options_type, *options)
+        drop_down_label = tk.Label(self, text="AI Difficulty")
         label.pack(side="top", pady=10)
         ai_button = tk.Button(self, text="AI Mode",
                               command=lambda: self.set_mode('ai'))
         local_button = tk.Button(self, text="Local Mode", command=lambda: self.set_mode('local'))
+        drop_down_label.pack()
+        drop_down.pack()
         ai_button.pack(pady=5)
         local_button.pack(pady=5)
 
     def set_mode(self, mode):
         self.controller.game_controller = self.factory.get_controller(mode, self.controller.game_controller.model)
+        if mode == 'ai':
+            if self.options_type.get() == "Easy":
+                self.controller.game_controller.set_difficulty(EasyAi())
+            elif self.options_type.get() == "Medium":
+                self.controller.game_controller.set_difficulty(MediumAi())
+            elif self.options_type.get() == "Hard":
+                self.controller.game_controller.set_difficulty(HardAi())
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
-        self.controller.game_controller.set_difficulty(EasyAi())
         self.controller.change_page("PlayPage")
 
 
