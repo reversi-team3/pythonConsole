@@ -1,5 +1,6 @@
 from model.AiStrategy import AiStrategy
 
-class EasyAi(AiStrategy):
+
+class MediumAi(AiStrategy):
     def determine_move(self, board):
-        super().determine_move(board, 7)
+        return super().determine_move(board, 3)
