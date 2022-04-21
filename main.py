@@ -1,3 +1,4 @@
+from GUIView import GUIView
 from controller.local_controller import LocalController
 from model.game_model import Game
 from view.game_console_view import GameConsoleView
@@ -12,6 +13,6 @@ print("Type \"exit\" at any time to exit the game.")
 game = Game()
 
 controller = LocalController(game)
-game_view = GameConsoleView(game.board, controller)
+game_view = GUIView(controller, game.board)
 controller.set_view(game_view)
 controller.run_game()

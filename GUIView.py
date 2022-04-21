@@ -8,6 +8,7 @@ from model.EasyAi import EasyAi
 from model.HardAi import HardAi
 from model.MediumAi import MediumAi
 from model.game_model import Game
+from model.model_proxy import ModelProxy
 from model.player import player_symbol, Player
 from view.game_view import GameView
 from database.DBManager import DBManager
@@ -424,7 +425,7 @@ class LeaderboardPage(tk.Frame):
 
 
 if __name__ == "__main__":
-    game = Game()
+    game = ModelProxy()
     db = DBManager.get_instance()
     controller = LocalController(game)
     game_view = GUIView(controller, game.board)
