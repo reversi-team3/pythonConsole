@@ -53,6 +53,7 @@ class Controller(ABC):
 
     def reset_game(self):
         size = self.model.board.shape[0]
+        # FIXME shouldn't be initializing a game from inside the controller
         self.model = Game()
         self.model.set_board_size(size)
         # self.model.set_board_size(self.model.board.shape[0])
