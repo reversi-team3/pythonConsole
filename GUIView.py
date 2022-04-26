@@ -279,10 +279,12 @@ class GameModePage(tk.Frame):
         ai_button = tk.Button(self, text="AI Mode",
                               command=lambda: self.set_mode('ai'))
         local_button = tk.Button(self, text="Local Mode", command=lambda: self.set_mode('local'))
+        online_button = tk.Button(self, text="Online Mode", command=lambda: self.set_mode('online'))
         drop_down_label.pack()
         drop_down.pack()
         ai_button.pack(pady=5)
         local_button.pack(pady=5)
+        online_button.pack(pady=5)
 
     def set_mode(self, mode):
         self.controller.game_controller = self.factory.get_controller(mode, self.controller.game_controller.model)
@@ -413,7 +415,7 @@ class LeaderboardPage(tk.Frame):
                                 command=lambda: controller.change_page("MainPage"))
         main_button.pack(pady=10)
 
-        rows = db.checkRank()
+        # rows = db.checkRank()
 
         # for i, name in enumerate(rows):
         #     db.updateLeaderboard(name,i+1)
@@ -426,7 +428,7 @@ class LeaderboardPage(tk.Frame):
 
 if __name__ == "__main__":
     game = ModelProxy()
-    db = DBManager.get_instance()
+    # db = DBManager.get_instance()
     controller = LocalController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
