@@ -40,10 +40,10 @@ class ModelProxy:
 
     @staticmethod
     def make_move(board, curr_turn, row, col):
-        return Game.is_legal_move(board, curr_turn, row, col)
+        return Game.make_move(board, curr_turn, row, col)
 
     def has_legal_moves(self):
-        msg = ("has_legal_moves")
+        msg = "has_legal_moves"
         return self.send(msg)
 
     def has_surrounding_empty_tile(self, row, col):
@@ -51,17 +51,17 @@ class ModelProxy:
         return self.send(msg)
 
     def is_board_full(self):
-        msg = ("is_board_full")
+        msg = "is_board_full"
         return self.send(msg)
 
     def change_turn(self):
-        msg = ("change_turn")
+        msg = "change_turn"
         return self.send(msg)
 
     def get_winner(self):
-        msg = ("get_winner")
+        msg = "get_winner"
         return self.send(msg)
 
     def get_leaderboard(self):
-        msg = ("get_leaderboard")
+        msg = "get_leaderboard"
         return self.send(msg)
