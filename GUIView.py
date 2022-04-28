@@ -4,6 +4,7 @@ import tkinter.messagebox
 from tkinter import messagebox
 
 from controller.controller_new import NewController
+from database.DBManager import DBManager
 from model.ai_player import AIPlayer
 from model.game_model import Game
 from model.online_player import OnlinePlayer
@@ -98,7 +99,7 @@ class LoginPage(tk.Frame):
         self.controller.change_page("MainPage")
 
     def login_verify(self, username, password):
-        rows = db.checkPlayer(username)
+        rows = self.controller.game_controller.model.db.checkPlayer(username)
         playerExist = len(rows)
         for row in rows:
             pw1 = row[0]
@@ -407,10 +408,12 @@ class PlayPage(tk.Frame, GameView):
     def request_move(self, i, j):
         move = self.controller.game_controller.model.curr_player.receive_move(i, j)
         self.controller.game_controller.play_turn(move[0], move[1])
+        self.controller.game_controller.update_active_game()
         if isinstance(self.controller.game_controller.model.curr_player, AIPlayer):
             time.sleep(.75)
             move2 = self.controller.game_controller.model.curr_player.receive_move(i, j)
             self.controller.game_controller.play_turn(move2[0], move2[1])
+            self.controller.game_controller.update_active_game()
 
         # return f'{i},{j}'
 
@@ -420,6 +423,7 @@ class PlayPage(tk.Frame, GameView):
         self.board = self.controller.game_controller.model.board
         self.set_buttons()
         self.display_curr_player(self.controller.game_controller.model.player_one)
+        self.controller.game_controller.add_active_game_to_db()
 
     def display_exit(self):
         exit_message = messagebox.askquestion("Exiting", "Are you sure you want to exit?")
@@ -450,7 +454,8 @@ class LeaderboardPage(tk.Frame):
 
 if __name__ == "__main__":
     game = Game()
-    # db = DBManager.get_instance()
+    db = DBManager.get_instance()
+    game.set_db(db)
     controller = NewController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])

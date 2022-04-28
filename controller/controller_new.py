@@ -118,4 +118,10 @@ class NewController:
         self.model.set_board_size(size)
         # self.model.set_board_size(self.model.board.shape[0])
 
+    def add_active_game_to_db(self):
+        self.model.db.addGame(self.model.player_one.username, self.model.player_two.username, self.model.to_JSON())
+
+    def update_active_game(self):
+        self.model.db.updateGame(self.model.player_one.username, self.model.player_two.username, self.model.to_JSON())
+
 

@@ -5,7 +5,7 @@ import numpy as np
 from database.ActiveGameManager import ActiveGameManager
 from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
-# from mysql.connector import connect, Error
+from mysql.connector import connect, Error
 from getpass import getpass
 
 
@@ -22,8 +22,12 @@ class Game:
         self.set_board_size()
         # used for runtime efficiency of has_legal_moves()
         self.zeros = self.board.size - 4
+        self.db = None
         # should probably initialize the db server connection here and refer to it as needed
         # instead of opening/closing in every method call
+
+    def set_db(self, db):
+        self.db = db
 
     def set_board_size(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.object)
@@ -219,10 +223,11 @@ class Game:
         self.board = json.loads(self.board)
         self.board = numpy.array(self.board)
 
-    def add_game_to_active_games(self, db: ActiveGameManager):
-        db.addGame("Frank", "John", self.to_JSON())
-        self.from_JSON()
+"""
+    def add_game_to_active_games(self):
+        pass
 
     def update_active_game(self, db: ActiveGameManager):
         db.updateGame("Frank", "John", self.to_JSON())
         self.from_JSON()
+"""

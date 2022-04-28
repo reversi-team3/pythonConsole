@@ -20,7 +20,7 @@ class DBManager:
             conn = connect(
                 host='localhost',
                 user='Team3',
-                password="RobinsonCano24"
+                password="Team3"
             )
             print("DB Connected")
             query = """
@@ -87,7 +87,7 @@ class DBManager:
         self.con = connect(
             host='localhost',
             user='Team3',
-            password="RobinsonCano24",
+            password="Team3",
             database="REVERSIDB1"
         )
 

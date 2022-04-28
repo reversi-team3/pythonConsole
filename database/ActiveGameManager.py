@@ -28,7 +28,7 @@ class ActiveGameManager:
         with self.db.con.cursor() as cursor:
             cursor.execute(query1)
             self.db.con.commit()
-        query2 = f"UPDATE ActiveGames SET game = \'{game}\' WHERE username1 = \"{username1}\";"
+        query2 = f"UPDATE ActiveGames SET game = \'{game}\' WHERE username2 = \"{username2}\";"
         with self.db.con.cursor() as cursor:
             cursor.execute(query2)
             self.db.con.commit()
