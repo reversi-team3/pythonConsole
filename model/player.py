@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 class Player(IntEnum):
@@ -11,21 +11,29 @@ player_symbol = {
     Player.X: 'black',
     Player.O: 'white'
 }
-"""
+
 player_color = {
     'black',
     'white',
     'blue',
     'purple'
 }
-"""
+
+
+class Color(Enum):
+    RED = "red"
+    BLUE = "blue"
+    BLACK = "black"
+    WHITE = "white"
+    PURPLE = "purple"
+
 
 base_player = Player.X
-ai_player = Player.O #ai_player is always going to be Player.O
+ai_player = Player.O  # ai_player is always going to be Player.O
 
 
 class BasePlayer(ABC):
-    def __init__(self, color: player_symbol):
+    def __init__(self, color: Color):
         super().__init__()
         self.color = color
 

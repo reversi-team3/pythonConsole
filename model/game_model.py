@@ -1,14 +1,20 @@
 import numpy as np
-from model.player import Player
-#from mysql.connector import connect, Error
+
+from model.online_player import OnlinePlayer
+from model.player import BasePlayer, Color
+# from mysql.connector import connect, Error
 from getpass import getpass
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, *args):
         self.board = 0
-        self.player_one = None
-        self.player_two = None
+        if args:
+            self.player_one = args[0]
+            self.player_two = args[1]
+        else:
+            self.player_one = OnlinePlayer("Player1", Color.BLACK)
+            self.player_two = OnlinePlayer("Player2", Color.WHITE)
         self.curr_player = self.player_one
         self.set_board_size()
         # used for runtime efficiency of has_legal_moves()
@@ -17,15 +23,15 @@ class Game:
         # instead of opening/closing in every method call
 
     def set_board_size(self, board_size=8):
-        self.board = np.zeros((board_size, board_size), dtype=np.int)
+        self.board = np.zeros((board_size, board_size), dtype=np.object)
         self.board[int(board_size / 2), int(board_size / 2)
-                   ] = int(self.curr_player)
+        ] = self.player_one
         self.board[int(board_size / 2 - 1), int(board_size / 2 -
-                                                1)] = int(self.curr_player)
+                                                1)] = self.player_one
         self.board[int(board_size / 2), int(board_size / 2 - 1)
-                   ] = int(1 + self.curr_player)
+        ] = self.player_two
         self.board[int(board_size / 2 - 1), int(board_size / 2)
-                   ] = int(1 + self.curr_player)
+        ] = self.player_two
 
     @staticmethod
     def is_legal_move(board, curr_turn, row, col):
@@ -35,17 +41,17 @@ class Game:
             return False
         if board[row, col] != 0:
             return False
-
         else:
             # Generating the list of neighbours
             neighbour = False
             neighbours = []
-            for i in range(max(0, row-1), min(row+2, len(board))):
-                for j in range(max(0, col-1), min(col+2, len(board))):
+            for i in range(max(0, row - 1), min(row + 2, len(board))):
+                for j in range(max(0, col - 1), min(col + 2, len(board))):
                     if board[i][j] != 0:
                         neighbour = True
                         neighbours.append([i, j])
             # If there's no neighbours, it's an invalid move
+
             if not neighbour:
                 return False
             else:
@@ -62,8 +68,8 @@ class Game:
                         continue
                     else:
                         # Direction of the line
-                        x_increment = neighbor_x-row
-                        y_increment = neighbor_y-col
+                        x_increment = neighbor_x - row
+                        y_increment = neighbor_y - col
                         temp_x = neighbor_x
                         temp_y = neighbor_y
 
@@ -82,7 +88,7 @@ class Game:
 
     @staticmethod
     def make_move(board, curr_turn, row, col):
-        board[row, col] = int(curr_turn)
+        board[row, col] = curr_turn
         neighbours = []
         for i in range(max(0, row - 1), min(row + 2, len(board))):
             for j in range(max(0, col - 1), min(col + 2, len(board))):
@@ -164,7 +170,7 @@ class Game:
         return not np.any(self.board == 0)
 
     def change_turn(self):
-        if self.curr_player == 1:
+        if self.curr_player == self.player_one:
             self.curr_player = self.player_two
         else:
             self.curr_player = self.player_one
@@ -184,9 +190,9 @@ class Game:
 
         # update wins and losses for winner
         if player_one_disks > player_two_disks:
-            return self.player_one
+            return self.player_one.username
         elif player_one_disks < player_two_disks:
-            return self.player_two
+            return self.player_two.username
         else:
             return 0
 

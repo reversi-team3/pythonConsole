@@ -26,7 +26,6 @@ class AiController(Controller):
             else:
                 super().play_turn(move[0], move[1])
 
-
     def get_move(self):
         move = self.ai_difficulty.determine_move(self.model.board)
         return move

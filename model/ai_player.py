@@ -1,17 +1,31 @@
 import numpy
 
+
+from controller.controller_new import NewController
 from model.game_model import Game
-from model.player import BasePlayer, Player
+from model.player import BasePlayer, Player, Color
 import numpy as np
 
 
 class AIPlayer(BasePlayer):
-    def __init__(self, model: Game, difficulty: int, color=Player.O):
+    def __init__(self, model: Game, color=Color.WHITE):
         super().__init__(color)
-        self.difficulty = difficulty
+        self.difficulty = None
         self.model = model
+        self.username = None
 
-    def receive_move(self):
+    def change_difficulty(self, difficulty):
+        if difficulty == "Easy":
+            self.difficulty = 1
+            self.username = "EasyBot"
+        elif difficulty == "Medium":
+            self.difficulty = 3
+            self.username = "MediumBot"
+        elif difficulty == "Hard":
+            self.difficulty = 5
+            self.username = "HardBot"
+
+    def receive_move(self, i, j):
         return self.determine_move(self.model.board, self.difficulty)
 
     # AI will always be player_two, human will always be player_one
@@ -75,3 +89,6 @@ class AIPlayer(BasePlayer):
                     return min_val
                 beta = min(beta, min_val)
             return min_val
+
+    def set_game(self, game):
+        self.model = game
