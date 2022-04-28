@@ -4,6 +4,7 @@ import threading
 
 from model.game_model import Game
 
+
 class Server:
     def __init__(self, host='127.0.0.1', port=3000, buffer_size=1024):
         self.models = {}
@@ -19,7 +20,7 @@ class Server:
             while True:
                 conn, address = my_socket.accept()
                 self.models[address] = Game()
-                thread = threading.Thread(target=self.handle_client, args=(conn,address))
+                thread = threading.Thread(target=self.handle_client, args=(conn, address))
                 thread.start()
 
     def handle_client(self, conn, address):

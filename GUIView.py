@@ -250,12 +250,12 @@ class MainPage(tk.Frame):
 
     def close(self):
         sign_out_message = messagebox.askquestion("Exiting", "Are you sure you want to exit the application?")
-        if (sign_out_message == 'yes'):
+        if sign_out_message == 'yes':
             self.controller.destroy()
 
     def sign_out(self):
         sign_out_message = messagebox.askquestion("Signing out", "Are you sure you want to sign out?")
-        if (sign_out_message == 'yes'):
+        if sign_out_message == 'yes':
             self.controller.change_page("LoginPage")
 
 
