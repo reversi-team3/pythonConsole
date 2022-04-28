@@ -15,17 +15,14 @@ player_symbol = {
 base_player = Player.X
 ai_player = Player.O
 
+
 class BasePlayer:
     def __init__(self, color: Player):
         super().__init__()
         self.color = color
 
-
+        # Returns the user's move
         @abstractmethod
-        def receive_move(self):
+        def receive_move(self) -> (int, int):
             pass
 
-
-        @abstractmethod
-        def get_received_move(self):
-            pass
