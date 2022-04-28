@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 from model.game_model import Game
 from model.player import BasePlayer, Player
 from view.game_view import GameView
