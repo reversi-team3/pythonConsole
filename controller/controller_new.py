@@ -50,7 +50,7 @@ class NewController:
         move = [0]
         valid = False
         while len(move) != 2 and not valid:
-            move = self.view.request_move()
+            move = self.model.curr_player.request_move()
             if move == "exit":
                 return [-1, -1]
             try:
