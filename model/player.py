@@ -1,4 +1,4 @@
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from enum import IntEnum
 
 
@@ -16,13 +16,12 @@ base_player = Player.X
 ai_player = Player.O
 
 
-class BasePlayer:
+class BasePlayer(ABC):
     def __init__(self, color: Player):
         super().__init__()
         self.color = color
 
-        # Returns the user's move
-        @abstractmethod
-        def receive_move(self) -> (int, int):
-            pass
-
+    # Returns the user's move
+    @abstractmethod
+    def receive_move(self) -> (int, int):
+        pass
