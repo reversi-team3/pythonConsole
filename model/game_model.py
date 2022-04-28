@@ -3,6 +3,7 @@ import numpy as np
 from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 # from mysql.connector import connect, Error
+from database.DBManager import DBManager
 from getpass import getpass
 
 
@@ -21,6 +22,8 @@ class Game:
         self.zeros = self.board.size - 4
         # should probably initialize the db server connection here and refer to it as needed
         # instead of opening/closing in every method call
+        self.db = DBManager.get_instance()
+
 
     def set_board_size(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.object)
@@ -205,3 +208,26 @@ class Game:
             cursor.execute(lb_query)
             result = cursor.fetchall()
             return result
+
+    def checkidpw(self, username, password):
+        rows = self.db.checkPlayer(username)
+        playerExist = len(rows)
+        for row in rows:
+            pw1 = row[0]
+        print(playerExist)
+
+        if playerExist:
+            if pw1 == password:
+                return 1
+            else:
+                return 2
+
+        else:
+            return 3
+
+    def check_rank(self):
+        rows = self.db.checkRank()
+        return rows
+
+    def add_player(self, username, password):
+        self.db.addPlayer(username, password)
