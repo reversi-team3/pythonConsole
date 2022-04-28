@@ -7,7 +7,9 @@ from getpass import getpass
 class Game:
     def __init__(self):
         self.board = 0
-        self.curr_player = Player.X
+        self.player_one = None
+        self.player_two = None
+        self.curr_player = self.player_one
         self.set_board_size()
         # used for runtime efficiency of has_legal_moves()
         self.zeros = self.board.size - 4
