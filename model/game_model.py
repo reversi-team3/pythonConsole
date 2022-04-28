@@ -177,16 +177,16 @@ class Game:
         player_two_disks = 0
         for i in range(len(self.board)):
             for j in range(len(self.board)):
-                if self.board[i][j] == Player.X:
+                if self.board[i][j] == self.player_one:
                     player_one_disks += 1
-                if self.board[i][j] == Player.O:
+                if self.board[i][j] == self.player_two:
                     player_two_disks += 1
 
         # update wins and losses for winner
         if player_one_disks > player_two_disks:
-            return Player.X
+            return self.player_one
         elif player_one_disks < player_two_disks:
-            return Player.O
+            return self.player_two
         else:
             return 0
 
