@@ -1,24 +1,21 @@
+import time
 import tkinter as tk
 import tkinter.messagebox
 from tkinter import messagebox
 
-from controller.controller_factory import ControllerFactory
 from controller.controller_new import NewController
-from controller.local_controller import LocalController
-from model.EasyAi import EasyAi
-from model.HardAi import HardAi
-from model.MediumAi import MediumAi
+from model.ai_player import AIPlayer
 from model.game_model import Game
-from model.model_proxy import ModelProxy
-from model.player import player_symbol, Player
+from model.online_player import OnlinePlayer
+from model.player import Color
 from view.game_view import GameView
-from database.DBManager import DBManager
 
 
 # from tkinter import OptionMenu
 
+
 class GUIView(tk.Tk):
-    def __init__(self, game_controller: LocalController, board):
+    def __init__(self, game_controller: NewController, board):
         self.game_controller = game_controller
         tk.Tk.__init__(self)
         self.board = board
@@ -89,30 +86,33 @@ class LoginPage(tk.Frame):
         login_button.grid(row=2, column=1, sticky=tk.E, padx=5, pady=5)
 
         guest_button = tk.Button(self, text='Play as Guest', width=10,
-                                 command=lambda: controller.change_page("MainPage"))
+                                 command=lambda: self.guest_play())
         guest_button.grid(row=2, column=0, sticky=tk.W, padx=5, pady=5)
 
         register_button = tk.Button(self, text='Sign Up', width=20,
                                     command=lambda: controller.change_page("RegisterPage"))
         register_button.grid(row=2, column=3, sticky=tk.W, padx=5, pady=5)
 
+    def guest_play(self):
+        self.controller.game_controller.model.player_one = OnlinePlayer("Guest", Color.BLACK)
+        self.controller.change_page("MainPage")
+
     def login_verify(self, username, password):
         rows = db.checkPlayer(username)
         playerExist = len(rows)
         for row in rows:
             pw1 = row[0]
-        print(playerExist)
 
         if playerExist:
             if pw1 == password:
-                self.login_sucess()
+                self.login_sucess(username)
             else:
                 self.password_not_recognised()
 
         else:
             self.user_not_found()
 
-    def login_sucess(self):
+    def login_sucess(self, username):
         global login_success_screen
         login_success_screen = tk.Tk()
         login_success_screen.title("Success")
@@ -120,6 +120,7 @@ class LoginPage(tk.Frame):
         tk.Label(login_success_screen, text="Login Success").pack()
         tk.Button(login_success_screen, text="OK",
                   command=self.delete_login_success).pack()
+        self.controller.game_controller.model.player_one = OnlinePlayer(username, Color.BLACK)
 
     def password_not_recognised(self):
         global password_not_recog_screen
@@ -265,7 +266,6 @@ class GameModePage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
         self.parent = parent
-        self.factory = ControllerFactory()
         label = tk.Label(self, text="Select game mode")
         options = [
             "Easy",
@@ -288,14 +288,9 @@ class GameModePage(tk.Frame):
         online_button.pack(pady=5)
 
     def set_mode(self, mode):
-        self.controller.game_controller = self.factory.get_controller(mode, self.controller.game_controller.model)
         if mode == 'ai':
-            if self.options_type.get() == "Easy":
-                self.controller.game_controller.set_difficulty(EasyAi())
-            elif self.options_type.get() == "Medium":
-                self.controller.game_controller.set_difficulty(MediumAi())
-            elif self.options_type.get() == "Hard":
-                self.controller.game_controller.set_difficulty(HardAi())
+            self.controller.game_controller.model.player_two = AIPlayer(self.controller.game_controller.model)
+            self.controller.game_controller.model.player_two.change_difficulty(self.options_type.get())
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
         self.controller.change_page("PlayPage")
 
@@ -311,6 +306,12 @@ class SettingsPage(tk.Frame):
             8,
             10
         ]
+        colors = [
+            "red",
+            "blue",
+            "black",
+            "purple"
+        ]
         self.options_type = tk.StringVar()
         self.options_type.set(options[1])
         drop_down = tk.OptionMenu(self, self.options_type, *options)
@@ -319,10 +320,22 @@ class SettingsPage(tk.Frame):
                                    command=self.confirm_size)
         return_button = tk.Button(self, text="Return",
                                   command=lambda: controller.change_page("MainPage"))
+        self.colors_type = tk.StringVar()
+        self.colors_type.set(options[2])
+        colors_drop_down = tk.OptionMenu(self, self.colors_type, *colors)
+        colors_label = tk.Label(self, text="Disk Color")
+        colors_confirm = tk.Button(self, text="Confirm Color", command=self.confirm_color)
         drop_down_label.pack()
         drop_down.pack()
         confirm_button.pack(pady=5)
+        colors_label.pack()
+        colors_drop_down.pack()
+        colors_confirm.pack()
         return_button.pack(pady=5)
+
+    def confirm_color(self):
+        self.controller.game_controller.model.player_one.change_color(self.colors_type.get())
+        tkinter.messagebox.showinfo(title="Success", message="Disk color updated")
 
     def confirm_size(self):
         if int(self.options_type.get()) != self.controller.game_controller.model.board.shape[0]:
@@ -350,14 +363,17 @@ class PlayPage(tk.Frame, GameView):
         exit_button.grid(row=self.board_size + 1, column=0, sticky="nsew")
 
     def display_board(self):
+        player_one = self.controller.game_controller.model.player_one
+        player_two = self.controller.game_controller.model.player_two
         self.invalid_move_label.grid_forget()
         for i in range(self.board_size):
             for j in range(self.board_size):
-                if self.board[i][j] == Player.X and self.buttons[i][j].cget('bg') != player_symbol[self.board[i][j]]:
-                    self.buttons[i][j].configure(bg="black")
+                if self.board[i][j] == player_one and \
+                        self.buttons[i][j].cget('bg') != self.board[i][j].color.value:
+                    self.buttons[i][j].configure(bg=player_one.color.value)
                     self.buttons[i][j].configure(command=None)
-                elif self.board[i][j] == Player.O and self.buttons[i][j].cget('bg') != player_symbol[self.board[i][j]]:
-                    self.buttons[i][j].configure(bg="white")
+                elif self.board[i][j] == player_two and self.buttons[i][j].cget('bg') != self.board[i][j].color.value:
+                    self.buttons[i][j].configure(bg=player_two.color.value)
                     # slightly worse performance to call this on every color change
                     self.buttons[i][j].configure(command=None)
         self.update()
@@ -374,7 +390,7 @@ class PlayPage(tk.Frame, GameView):
                 self.buttons[i][j].grid(row=i, column=j, sticky='nsew')
 
     def display_curr_player(self, player):
-        curr_player = tk.Label(self, text=f'Current Player:{player}')
+        curr_player = tk.Label(self, text=f'Current Player:{player.username}')
         curr_player.grid(row=self.board_size + 1, column=self.board_size + 1)
 
     def display_winner(self, winner):
@@ -389,16 +405,15 @@ class PlayPage(tk.Frame, GameView):
 
     # rename to make move
     def request_move(self, i, j):
-        i = i
-        j = j
-        self.controller.game_controller.play_turn(i, j)
+        move = self.controller.game_controller.model.curr_player.receive_move(i, j)
+        self.controller.game_controller.play_turn(move[0], move[1])
         # return f'{i},{j}'
 
     def start_game(self):
         self.controller.game_controller.reset_game()
         self.board = self.controller.game_controller.model.board
         self.set_buttons()
-        self.display_curr_player(Player.X)
+        self.display_curr_player(self.controller.game_controller.model.player_one)
 
     def display_exit(self):
         exit_message = messagebox.askquestion("Exiting", "Are you sure you want to exit?")
@@ -428,9 +443,9 @@ class LeaderboardPage(tk.Frame):
 
 
 if __name__ == "__main__":
-    game = ModelProxy()
+    game = Game()
     # db = DBManager.get_instance()
-    controller = NewController()
+    controller = NewController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
 

@@ -1,4 +1,3 @@
-from controller.abstract_controller import Controller
 from model.game_model import Game
 from view.game_view import GameView
 
@@ -7,7 +6,6 @@ class NewController:
     def __init__(self, model: Game):
         self.model = model
         self.view = None
-        self.players = [self.model.player_one, self.model.player_two]
 
     def set_view(self, view: GameView):
         self.view = view
@@ -86,7 +84,7 @@ class NewController:
         move = [0]
         valid = False
         while len(move) != 2 and not valid:
-            move = self.model.curr_player.request_move()
+            move = self.model.curr_player.receive_move()
             if move == "exit":
                 return [-1, -1]
             try:
@@ -115,7 +113,8 @@ class NewController:
     def reset_game(self):
         size = self.model.board.shape[0]
         # FIXME shouldn't be initializing a game from inside the controller
-        self.model = Game()
+        self.model = Game(self.model.player_one, self.model.player_two)
+        self.model.player_two.set_game(self.model)
         self.model.set_board_size(size)
         # self.model.set_board_size(self.model.board.shape[0])
 
