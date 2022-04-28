@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 
-from database import ActiveGameManager
+
 from model.game_model import Game
-from model.model_proxy import ModelProxy
 from view.game_view import GameView
 
 
@@ -17,11 +16,11 @@ class Controller(ABC):
 
     def play_turn(self, row, col):
         game_ended = False
-        while not Game.is_legal_move(self.model.board, self.model.curr_player, row, col):
+        while not self.model.is_legal_move(self.model.board, self.model.curr_player, row, col):
             self.view.display_illegal_move()
             return -1
 
-        self.model.make_move(row, col)
+        self.model.make_move(self.model.board, self.model.curr_player, row, col)
         if self.model.is_board_full():
             game_ended = True
         else:
@@ -55,7 +54,7 @@ class Controller(ABC):
     def reset_game(self):
         size = self.model.board.shape[0]
         # FIXME shouldn't be initializing a game from inside the controller
-        self.model = ModelProxy()
+        self.model = Game()
         self.model.set_board_size(size)
         # self.model.set_board_size(self.model.board.shape[0])
 
@@ -64,5 +63,3 @@ class Controller(ABC):
 
     def get_leaderboard(self):
         return
-
-

@@ -1,4 +1,5 @@
 import time
+
 import numpy
 
 
@@ -66,18 +67,15 @@ class AIPlayer(BasePlayer):
 
     def minimax(self, board, curr_move, depth, player, alpha, beta):
         board_copy = np.copy(board)
-        game = Game()
-        game.board = board_copy
-        game.curr_player = curr_move
-        game.make_move(curr_move[0], curr_move[1])
+        Game.make_move(board_copy, player, curr_move[0], curr_move[1])
 
-        if depth <= 0 or not numpy.any(game.board == 0):
-            return self.score(game.board)
-        if player == Player.O:  # maximizing Player O (AI)'s move
+        if depth <= 0 or not numpy.any(board_copy == 0):
+            return self.score(board_copy)
+        if player == self.model.player_two:  # maximizing Player O (AI)'s move
             max_val = -999999999
-            moves = self.get_move_list(game.board)
+            moves = self.get_move_list(board_copy)
             for move in moves:
-                val = self.minimax(game.board, move, depth - 1, self.model.player_one, alpha, beta)
+                val = self.minimax(board_copy, move, depth - 1, self.model.player_one, alpha, beta)
                 max_val = max(max_val, val)
                 if max_val >= beta:
                     return max_val
@@ -85,9 +83,9 @@ class AIPlayer(BasePlayer):
             return max_val
         else:
             min_val = 999999999
-            moves = self.get_move_list(game.board)
+            moves = self.get_move_list(board_copy)
             for move in moves:
-                val = self.minimax(game.board, move, depth - 1, self.model.player_two, alpha, beta)
+                val = self.minimax(board_copy, move, depth - 1, self.model.player_two, alpha, beta)
                 min_val = min(min_val, val)
                 if min_val <= alpha:
                     return min_val

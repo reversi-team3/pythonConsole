@@ -1,7 +1,6 @@
 import socket
 import pickle
 
-from database import ActiveGameManager
 from model.game_model import Game
 from model.player import Player
 
@@ -65,19 +64,4 @@ class ModelProxy:
 
     def get_leaderboard(self):
         msg = "get_leaderboard"
-        return self.send(msg)
-    def to_JSON(self):
-        msg = ("get_to_JSON",)
-        return self.send(msg)
-
-    def from_JSON(self):
-        msg = ("get_from_JSON",)
-        return self.send(msg)
-
-    def add_game_to_active_games(self):
-        msg = ("add_game_to_active_games",)
-        return self.send(msg)
-
-    def update_active_game(self):
-        msg = ("update_active_game",)
         return self.send(msg)
