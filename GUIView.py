@@ -98,18 +98,12 @@ class LoginPage(tk.Frame):
         self.controller.change_page("MainPage")
 
     def login_verify(self, username, password):
-        rows = db.checkPlayer(username)
-        playerExist = len(rows)
-        for row in rows:
-            pw1 = row[0]
-
-        if playerExist:
-            if pw1 == password:
-                self.login_sucess(username)
-            else:
-                self.password_not_recognised()
-
-        else:
+        result = self.controller.game_controller.model.checkidpw(username, password)
+        if result==1:
+            self.login_sucess(username)
+        elif result==2:
+            self.password_not_recognised()
+        elif result==3:
             self.user_not_found()
 
     def login_sucess(self, username):
@@ -193,7 +187,8 @@ class RegisterPage(tk.Frame):
                 #     file.write(password_input + "\n" + "\n")
                 #     file.close()
                 #     print ("Successful")
-                db.addPlayer(username_input, password_input)
+                #db.addPlayer(username_input, password_input)
+                self.controller.game_controller.model.add_player(username_input, password_input)
 
                 registration_label = tk.Label(self, text='         Registration Success                      ',
                                               fg='green')
@@ -438,6 +433,7 @@ class LeaderboardPage(tk.Frame):
                                 command=lambda: controller.change_page("MainPage"))
         main_button.pack(pady=10)
 
+        rows = self.controller.game_controller.model.check_rank()
         # rows = db.checkRank()
 
         # for i, name in enumerate(rows):
