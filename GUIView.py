@@ -3,6 +3,7 @@ import tkinter.messagebox
 from tkinter import messagebox
 
 from controller.controller_factory import ControllerFactory
+from controller.controller_new import NewController
 from controller.local_controller import LocalController
 from model.EasyAi import EasyAi
 from model.HardAi import HardAi
@@ -429,7 +430,7 @@ class LeaderboardPage(tk.Frame):
 if __name__ == "__main__":
     game = ModelProxy()
     # db = DBManager.get_instance()
-    controller = LocalController(game)
+    controller = NewController()
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
 
