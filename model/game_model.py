@@ -165,9 +165,9 @@ class Game:
 
     def change_turn(self):
         if self.curr_player == 1:
-            self.curr_player = Player(2)
+            self.curr_player = self.player_two
         else:
-            self.curr_player = Player(1)
+            self.curr_player = self.player_one
 
     def get_winner(self):
         """
