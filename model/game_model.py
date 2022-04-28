@@ -1,5 +1,8 @@
+import json
+
 import numpy as np
 
+from database.ActiveGameManager import ActiveGameManager
 from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 # from mysql.connector import connect, Error
@@ -205,3 +208,21 @@ class Game:
             cursor.execute(lb_query)
             result = cursor.fetchall()
             return result
+
+    def to_JSON(self):
+        self.board = self.board.tolist()
+        self.board = json.dumps(self.board)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def from_JSON(self):
+        self.board = json.loads(self.board)
+        self.board = numpy.array(self.board)
+
+    def add_game_to_active_games(self, db: ActiveGameManager):
+        db.addGame("Frank", "John", self.to_JSON())
+        self.from_JSON()
+
+    def update_active_game(self, db: ActiveGameManager):
+        db.updateGame("Frank", "John", self.to_JSON())
+        self.from_JSON()

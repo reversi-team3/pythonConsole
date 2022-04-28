@@ -416,6 +416,7 @@ class PlayPage(tk.Frame, GameView):
 
     def start_game(self):
         self.controller.game_controller.reset_game()
+        self.controller.game_controller.model.add_game_to_active_games()
         self.board = self.controller.game_controller.model.board
         self.set_buttons()
         self.display_curr_player(self.controller.game_controller.model.player_one)
