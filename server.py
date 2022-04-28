@@ -2,6 +2,8 @@ import socket
 import pickle
 import threading
 
+from database.ActiveGameManager import ActiveGameManager
+from database.DBManager import DBManager
 from model.game_model import Game
 
 
@@ -11,6 +13,7 @@ class Server:
         self.host = host
         self.port = port
         self.buffer_size = buffer_size
+        self.ActiveGamesManager = ActiveGameManager(DBManager.get_instance())
 
     def start(self):
         with socket.socket() as my_socket:
@@ -34,15 +37,19 @@ class Server:
                 model = self.models[address]
                 if not model:
                     break
-                result = (Server.delegate(model, msg), model)
+                print('Here')
+                result = (Server.delegate(self, model, msg), model)
                 result_binary = pickle.dumps(result)
                 conn.sendall(result_binary)
 
-    @staticmethod
-    def delegate(model: Game, msg):
+    def delegate(self, model: Game, msg):
         msg_name = msg[0]
         if msg_name == "set_board_size":
             return model.set_board_size(msg[1])
+        elif msg_name == "is_legal_move":
+            return model.is_legal_move(msg[1], msg[2], msg[3], msg[4])
+        elif msg_name == "make_move":
+            return model.make_move(msg[1], msg[2])
         elif msg_name == "has_legal_moves":
             return model.has_legal_moves()
         elif msg_name == "has_surrounding_empty_tile":
@@ -55,6 +62,14 @@ class Server:
             return model.get_winner()
         elif msg_name == "get_leaderboard":
             return model.get_leaderboard()
+        elif msg_name == "get_to_JSON":
+            return model.to_JSON()
+        elif msg_name == "get_from_JSON":
+            return model.from_JSON()
+        elif msg_name == "update_active_game":
+            return model.update_active_game(self.ActiveGamesManager)
+        elif msg_name == "add_game_to_active_games":
+            return model.add_game_to_active_games(self.ActiveGamesManager)
         return None
 
 

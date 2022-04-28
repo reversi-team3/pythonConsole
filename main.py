@@ -16,7 +16,7 @@ while int(board_size) % 2 == 1:
 print("Type \"exit\" at any time to exit the game.")
 game = Game()
 
-controller = LocalController(game)
+controller = LocalController(True)
 game_view = GUIView(controller, game.board)
 controller.set_view(game_view)
 controller.run_game()

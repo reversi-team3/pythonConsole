@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 
 from model.online_player import OnlinePlayer
@@ -86,13 +88,12 @@ class Game:
                             temp_y += y_increment
                 return valid
 
-    @staticmethod
-    def make_move(board, curr_turn, row, col):
+    def make_move(self, row, col):
         board[row, col] = curr_turn
         neighbours = []
-        for i in range(max(0, row - 1), min(row + 2, len(board))):
-            for j in range(max(0, col - 1), min(col + 2, len(board))):
-                if board[i][j] != 0:
+        for i in range(max(0, row - 1), min(row + 2, len(self.board))):
+            for j in range(max(0, col - 1), min(col + 2, len(self.board))):
+                if self.board[i][j] != 0:
                     neighbours.append([i, j])
 
         # Which tiles to flip
@@ -104,7 +105,7 @@ class Game:
             neighbor_x = neighbour[0]
             neighbor_y = neighbour[1]
             # Check if the neighbour is of a different colour - it must be to form a line
-            if board[neighbor_x][neighbor_y] != curr_turn:
+            if self.board[neighbor_x][neighbor_y] != self.curr_player:
                 # The path of each individual line
                 path = []
 
@@ -116,14 +117,14 @@ class Game:
                 temp_y = neighbor_y
 
                 # While we are in the bounds of the board
-                while 0 <= temp_x < len(board) and 0 <= temp_y < len(board):
+                while 0 <= temp_x < len(self.board) and 0 <= temp_y < len(self.board):
                     path.append([temp_x, temp_y])
-                    value = board[temp_x][temp_y]
+                    value = self.board[temp_x][temp_y]
                     # If we reach a blank tile, we're done and there's no line
                     if value == 0:
                         break
                     # If we reach a tile of the player's colour, a line is formed
-                    if value == curr_turn:
+                    if value == self.curr_player:
                         # Append all of our path tiles to the convert array
                         for tile in path:
                             flip.append(tile)
@@ -135,8 +136,9 @@ class Game:
 
         # Convert all the appropriate tiles
         for tile in flip:
-            board[tile[0]][tile[1]] = curr_turn
+            self.board[tile[0]][tile[1]] = self.curr_player
             # re-implement zeros
+
 
     def has_legal_moves(self):
         """
@@ -205,3 +207,22 @@ class Game:
             cursor.execute(lb_query)
             result = cursor.fetchall()
             return result
+
+    def to_JSON(self):
+        self.board = self.board.tolist()
+        self.board = json.dumps(self.board)
+        return json.dumps(self, default=lambda o: o.__dict__,
+                          sort_keys=True, indent=4)
+
+    def from_JSON(self):
+        self.board = json.loads(self.board)
+        self.board = numpy.array(self.board)
+
+    def add_game_to_active_games(self, db: ActiveGameManager):
+        db.addGame("Frank", "John", self.to_JSON())
+        self.from_JSON()
+
+    def update_active_game(self, db: ActiveGameManager):
+        db.updateGame("Frank", "John", self.to_JSON())
+        self.from_JSON()
+
