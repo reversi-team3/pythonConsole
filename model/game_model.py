@@ -5,6 +5,7 @@ import numpy as np
 from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 # from mysql.connector import connect, Error
+from database.DBManager import DBManager
 from getpass import getpass
 
 
@@ -23,6 +24,8 @@ class Game:
         self.zeros = self.board.size - 4
         # should probably initialize the db server connection here and refer to it as needed
         # instead of opening/closing in every method call
+        self.db = DBManager.get_instance()
+
 
     def set_board_size(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.object)
@@ -208,21 +211,4 @@ class Game:
             result = cursor.fetchall()
             return result
 
-    def to_JSON(self):
-        self.board = self.board.tolist()
-        self.board = json.dumps(self.board)
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
-    def from_JSON(self):
-        self.board = json.loads(self.board)
-        self.board = numpy.array(self.board)
-
-    def add_game_to_active_games(self, db: ActiveGameManager):
-        db.addGame("Frank", "John", self.to_JSON())
-        self.from_JSON()
-
-    def update_active_game(self, db: ActiveGameManager):
-        db.updateGame("Frank", "John", self.to_JSON())
-        self.from_JSON()
 
