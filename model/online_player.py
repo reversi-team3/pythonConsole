@@ -7,7 +7,7 @@ class OnlinePlayer(BasePlayer):
     def __init__(self, username, color: Color):
         super().__init__(color)
         self.username = username
-        self.elo = 1500
+        self.elo = 1500 # pull elo from DB
     """
     def get_elo(self):
         # self.elo = pull from db
@@ -28,3 +28,5 @@ class OnlinePlayer(BasePlayer):
             self.elo = 30 + self.elo * (1 - probability)
         else:
             self.elo = 30 + self.elo * (0 - probability)
+
+        # update database
