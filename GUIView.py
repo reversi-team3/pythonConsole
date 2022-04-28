@@ -407,6 +407,11 @@ class PlayPage(tk.Frame, GameView):
     def request_move(self, i, j):
         move = self.controller.game_controller.model.curr_player.receive_move(i, j)
         self.controller.game_controller.play_turn(move[0], move[1])
+        if isinstance(self.controller.game_controller.model.curr_player, AIPlayer):
+            time.sleep(.75)
+            move2 = self.controller.game_controller.model.curr_player.receive_move(i, j)
+            self.controller.game_controller.play_turn(move2[0], move2[1])
+
         # return f'{i},{j}'
 
     def start_game(self):

@@ -16,3 +16,6 @@ class OnlinePlayer(BasePlayer):
 
     def receive_move(self, i, j):
         return i, j
+
+    def set_game(self, model):
+        pass
