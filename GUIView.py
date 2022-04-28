@@ -4,9 +4,12 @@ import tkinter.messagebox
 from tkinter import messagebox
 
 from controller.controller_new import NewController
+from database.ActiveGameManager import ActiveGameManager
 from database.DBManager import DBManager
 from model.ai_player import AIPlayer
 from model.game_model import Game
+from model.local_player import LocalPlayer
+from model.model_proxy import ModelProxy
 from model.online_player import OnlinePlayer
 from model.player import Color
 from view.game_view import GameView
@@ -292,6 +295,14 @@ class GameModePage(tk.Frame):
         if mode == 'ai':
             self.controller.game_controller.model.player_two = AIPlayer(self.controller.game_controller.model)
             self.controller.game_controller.model.player_two.change_difficulty(self.options_type.get())
+        elif mode == 'local' or mode == 'online':
+            self.controller.game_controller.model.player_one = LocalPlayer(self.controller.game_controller.model.player_one.username,
+                                                                           self.controller.game_controller.model.player_one.color)
+            self.controller.game_controller.model.player_two = LocalPlayer("Player2", Color.WHITE)
+            self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
+        elif mode == 'online':
+            self.controller.game_controller.model = ModelProxy()
+            self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
         self.controller.change_page("PlayPage")
 
@@ -395,7 +406,7 @@ class PlayPage(tk.Frame, GameView):
         curr_player.grid(row=self.board_size + 1, column=self.board_size + 1)
 
     def display_winner(self, winner):
-        messagebox.showinfo("Congratulations!", f'Player {winner} has won! Congratulations!')
+        messagebox.showinfo("Congratulations!", f'Player {winner.username} has won! Congratulations! New Elo: {winner.elo}')
         self.controller.change_page("MainPage")
 
     def display_illegal_move(self):

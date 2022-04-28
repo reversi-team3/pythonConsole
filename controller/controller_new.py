@@ -108,6 +108,8 @@ class NewController:
 
     def game_over(self):
         self.view.display_board()
+        self.model.player_one.update_elo(self.model.player_two.elo, self.model.get_winner() == self.model.player_one)
+        self.model.player_two.update_elo(self.model.player_one.elo, self.model.get_winner() == self.model.player_two)
         self.view.display_winner(self.model.get_winner())
 
     def reset_game(self):

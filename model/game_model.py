@@ -197,9 +197,9 @@ class Game:
 
         # update wins and losses for winner
         if player_one_disks > player_two_disks:
-            return self.player_one.username
+            return self.player_one
         elif player_one_disks < player_two_disks:
-            return self.player_two.username
+            return self.player_two
         else:
             return 0
 

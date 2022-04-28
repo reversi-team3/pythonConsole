@@ -36,8 +36,13 @@ class BasePlayer(ABC):
     def __init__(self, color: Color):
         super().__init__()
         self.color = color
+        self.elo = 0
 
     # Returns the user's move
     @abstractmethod
     def receive_move(self) -> (int, int):
+        pass
+
+    @abstractmethod
+    def update_elo(self, opponent_rating, self_won):
         pass
