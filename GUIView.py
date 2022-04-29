@@ -122,7 +122,7 @@ class LoginPage(tk.Frame):
         login_success_screen.title("Success")
         login_success_screen.geometry("150x100")
         tk.Label(login_success_screen, text="Login Success").pack()
-        self.controller.game_controller.model.player_one = OnlinePlayer(username, Color.BLACK, 1)
+        self.controller.game_controller.model.player_one.username = username
         tk.Button(login_success_screen, text="OK",
                   command=lambda: self.delete_login_success(self.controller.game_controller.model.player_one)).pack()
 
@@ -199,7 +199,7 @@ class RegisterPage(tk.Frame):
         # error_label = tk.Label(self, text = '')
         # error_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
         try:
-            if username_input != '' and password_input != '':
+            if username_input != '' and username_input != 'Guest' and password_input != '':
                 # blank_label = tk.Label(self, text = '                                 ')
                 # blank_label.grid(row = 5, column=1, sticky=tk.W, padx=5, pady=5)
                 # with open('Registration.txt', 'a') as file:
@@ -256,13 +256,13 @@ class MainPage(tk.Frame):
                                       command=lambda: self.sign_out())
         exit_button = tk.Button(self, text="Exit",
                                 command=lambda: self.close())
-        load_crashed_game_button = tk.Button(self, text="Load Crashed Game")
+        username = tk.Label(self, text=self.controller.game_controller.model.player_one.username)
+        username.pack(side='top', anchor='nw')
         play_button.pack(pady=5)
         settings_button.pack(pady=5)
         leaderboard_button.pack(pady=5)
         login_page_button.pack(pady=5)
         exit_button.pack(pady=5)
-        load_crashed_game_button.pack(side="bottom", pady=10)
 
     def close(self):
         sign_out_message = messagebox.askquestion("Exiting", "Are you sure you want to exit the application?")

@@ -1,5 +1,6 @@
 import ast
 import json
+import math
 
 import numpy as np
 
@@ -33,7 +34,7 @@ class Game:
                 self.player_two = args[1]
 
             else:
-                self.player_one = OnlinePlayer("Player1", Color.BLACK, 1)
+                self.player_one = OnlinePlayer("Guest", Color.BLACK, 1)
                 self.player_two = OnlinePlayer("Player2", Color.WHITE)
             self.board = 0
             self.curr_player = self.player_one
@@ -63,7 +64,6 @@ class Game:
 
     @staticmethod
     def is_legal_move(board, curr_turn, row, col):
-        print(board)
         if row < 0 or row >= len(board):
             return False
         if col < 0 or col >= len(board):
@@ -269,3 +269,17 @@ class Game:
         else:
             return self.player_two
 
+    def set_player_elo(self):
+        self.player_one.elo = self.db.getElo(self.player_one.username)
+        # set player_two elo
+
+    def update_elo(self, winner):
+        if winner == self.player_one:
+            loser = self.player_two
+        else:
+            loser = self.player_one
+        probability = 1 * 1 // (1 + 1 * math.pow(10, 1 * (loser.elo - winner.elo) // 400)) # get probability of self winning
+
+        # questionable logic
+        winner.elo = 30 + winner.elo * (1 - probability)
+        loser.elo = 30 + loser.elo * (0 - probability)

@@ -29,7 +29,7 @@ class DBManager:
                     CREATE TABLE IF NOT EXISTS player(
                     username char(255),
                     pw char(255),
-                    elo int DEFAULT 0,
+                    elo int DEFAULT 1500,
                     win int DEFAULT 0,
                     loss int DEFAULT 0,
                     tie int DEFAULT 0,
@@ -155,6 +155,14 @@ class DBManager:
 
     def checkGame(self, username):
         query = "select * from ActiveGames where username1 = %s"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query, (username,))
+            row = cursor.fetchall()
+            return row
+
+    def getElo(self, username):
+        query = "select elo from player where username1 = %s"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))

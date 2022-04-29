@@ -16,17 +16,21 @@ class AIPlayer(BasePlayer):
         self.model = model
         self.username = None
         self.num = num
+        self.elo = 0
 
     def change_difficulty(self, difficulty):
         if difficulty == "Easy":
             self.difficulty = 1
             self.username = "EasyBot"
+            self.elo = 400
         elif difficulty == "Medium":
             self.difficulty = 3
             self.username = "MediumBot"
+            self.elo = 800
         elif difficulty == "Hard":
             self.difficulty = 5
             self.username = "HardBot"
+            self.elo = 1200
 
     def receive_move(self, i, j):
         return self.determine_move(self.model.board, self.difficulty)

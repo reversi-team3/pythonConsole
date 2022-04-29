@@ -127,7 +127,7 @@ class NewController:
        
         # FIXME shouldn't be initializing a game from inside the controller
         self.model.player_two.set_game(self.model)
-        
+        self.model.set_player_elo()
         # self.model.set_board_size(self.model.board.shape[0])
 
     def add_active_game_to_db(self):
