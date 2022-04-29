@@ -1,4 +1,6 @@
 from model.game_model import Game
+from model.local_player import LocalPlayer
+from model.player import Color
 from view.game_view import GameView
 
 
@@ -49,11 +51,11 @@ class NewController:
 
     def play_turn(self, row, col):
         game_ended = False
-        while not self.model.is_legal_move(self.model.board, self.model.curr_player, row, col):
+        while not self.model.is_legal_move(self.model.board, self.model.curr_player.num, row, col):
             self.view.display_illegal_move()
             return -1
 
-        self.model.make_move(self.model.board, self.model.curr_player, row, col)
+        self.model.make_move(self.model.board, self.model.curr_player.num, row, col)
         if self.model.is_board_full():
             game_ended = True
         else:
@@ -111,19 +113,25 @@ class NewController:
         self.model.player_one.update_elo(self.model.player_two.elo, self.model.get_winner() == self.model.player_one)
         self.model.player_two.update_elo(self.model.player_one.elo, self.model.get_winner() == self.model.player_two)
         self.view.display_winner(self.model.get_winner())
+        
 
-    def reset_game(self):
-        size = self.model.board.shape[0]
+    def reset_game(self, player_one, board = None, turn = None):
+        if board:
+            self.model = Game(player_one, LocalPlayer("Player2", Color.WHITE), board, turn)
+        else:
+            self.model = Game(self.model.player_one, self.model.player_two)
+            size = self.model.board.shape[0]
+            self.model.set_board_size(size)
+       
         # FIXME shouldn't be initializing a game from inside the controller
-        self.model = Game(self.model.player_one, self.model.player_two)
         self.model.player_two.set_game(self.model)
-        self.model.set_board_size(size)
+        
         # self.model.set_board_size(self.model.board.shape[0])
 
     def add_active_game_to_db(self):
         self.model.db.addGame(self.model.player_one.username, self.model.player_two.username, self.model.to_JSON())
 
     def update_active_game(self):
-        self.model.db.updateGame(self.model.player_one.username, self.model.player_two.username, self.model.to_JSON())
+        self.model.db.updateGame(self.model.player_one.username, self.model.to_JSON(), self.model.curr_player.username)
 
 

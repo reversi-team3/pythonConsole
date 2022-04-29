@@ -4,9 +4,10 @@ from model.player import BasePlayer, player_color, Color
 
 
 class LocalPlayer(BasePlayer):
-    def __init__(self, username, color: Color):
+    def __init__(self, username, color: Color, number =2):
         super().__init__(color)
         self.username = username
+        self.num = number
     """
     def get_elo(self):
         # self.elo = pull from db

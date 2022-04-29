@@ -4,10 +4,12 @@ from model.player import BasePlayer, player_color, Color
 
 
 class OnlinePlayer(BasePlayer):
-    def __init__(self, username, color: Color):
+    def __init__(self, username, color: Color, number = 2):
         super().__init__(color)
         self.username = username
         self.elo = 1500 # pull elo from DB
+        # i think they need value??
+        self.num = number
     """
     def get_elo(self):
         # self.elo = pull from db
@@ -30,3 +32,4 @@ class OnlinePlayer(BasePlayer):
             self.elo = 30 + self.elo * (0 - probability)
 
         # update database
+

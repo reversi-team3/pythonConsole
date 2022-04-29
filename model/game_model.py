@@ -3,45 +3,66 @@ import json
 import numpy as np
 
 from database.ActiveGameManager import ActiveGameManager
+# kihang add
+from database.DBManager import DBManager
 from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 from mysql.connector import connect, Error
 from getpass import getpass
-
+class NumpyArrayEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 class Game:
     def __init__(self, *args):
-        self.board = 0
-        if args:
+        
+        if len(args) > 2:
             self.player_one = args[0]
             self.player_two = args[1]
+            self.board = args[2]
+            if args[3] == self.player_one.username:
+                self.curr_player = self.player_one
+            else:
+                self.curr_player = self.player_two
         else:
-            self.player_one = OnlinePlayer("Player1", Color.BLACK)
-            self.player_two = OnlinePlayer("Player2", Color.WHITE)
-        self.curr_player = self.player_one
-        self.set_board_size()
-        # used for runtime efficiency of has_legal_moves()
-        self.zeros = self.board.size - 4
-        self.db = None
-        # should probably initialize the db server connection here and refer to it as needed
-        # instead of opening/closing in every method call
+            if args:
+                self.player_one = args[0]
+                self.player_two = args[1]
 
+            else:
+                self.player_one = OnlinePlayer("Player1", Color.BLACK)
+                self.player_two = OnlinePlayer("Player2", Color.WHITE)
+            self.board = 0
+            self.curr_player = self.player_one
+            self.set_board_size()
+            # used for runtime efficiency of has_legal_moves()
+        self.zeros = self.board.size - 4
+            #self.db = None
+            # should probably initialize the db server connection here and refer to it as needed
+            # instead of opening/closing in every method call
+        self.db = DBManager.get_instance()
+
+
+    # not sure if this is necessary
     def set_db(self, db):
         self.db = db
 
     def set_board_size(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.object)
         self.board[int(board_size / 2), int(board_size / 2)
-        ] = self.player_one
+        ] = self.player_one.num
         self.board[int(board_size / 2 - 1), int(board_size / 2 -
-                                                1)] = self.player_one
+                                                1)] = self.player_one.num
         self.board[int(board_size / 2), int(board_size / 2 - 1)
-        ] = self.player_two
+        ] = self.player_two.num
         self.board[int(board_size / 2 - 1), int(board_size / 2)
-        ] = self.player_two
+        ] = self.player_two.num
 
     @staticmethod
     def is_legal_move(board, curr_turn, row, col):
+        print(board)
         if row < 0 or row >= len(board):
             return False
         if col < 0 or col >= len(board):
@@ -49,6 +70,7 @@ class Game:
         if board[row, col] != 0:
             return False
         else:
+            print("here")
             # Generating the list of neighbours
             neighbour = False
             neighbours = []
@@ -152,7 +174,7 @@ class Game:
         if self.zeros >= len(self.board):
             for i in range(len(self.board)):
                 for j in range(len(self.board)):
-                    if self.board[i][j] == 0 and Game.is_legal_move(self.board, self.curr_player, i, j):
+                    if self.board[i][j] == 0 and Game.is_legal_move(self.board, self.curr_player.num, i, j):
                         return True
         else:
             for i in range(len(self.board)):
@@ -161,7 +183,7 @@ class Game:
                         zeros = self.has_surrounding_empty_tile(i, j)
                         if zeros:
                             for zero in zeros:
-                                if Game.is_legal_move(self.board, self.curr_player, zero[0], zero[1]):
+                                if Game.is_legal_move(self.board, self.curr_player.num, zero[0], zero[1]):
                                     return True
             return False
 
@@ -186,13 +208,14 @@ class Game:
         """
         :return: 1 if Player X won, 2 if Player O won, 0 if draw
         """
+        self.db.deleteGame(self.player_one.username)
         player_one_disks = 0
         player_two_disks = 0
         for i in range(len(self.board)):
             for j in range(len(self.board)):
-                if self.board[i][j] == self.player_one:
+                if self.board[i][j] == self.player_one.num:
                     player_one_disks += 1
-                if self.board[i][j] == self.player_two:
+                if self.board[i][j] == self.player_two.num:
                     player_two_disks += 1
 
         # update wins and losses for winner
@@ -214,20 +237,37 @@ class Game:
             return result
 
     def to_JSON(self):
-        self.board = self.board.tolist()
-        self.board = json.dumps(self.board)
-        return json.dumps(self, default=lambda o: o.__dict__,
+        json_board = self.board.tolist()
+        json_board = json.dumps(json_board)
+        return json.dumps(json_board, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
+        # return json.dumps(self, default=vars,
+        #                   sort_keys=True, indent=4)
 
     def from_JSON(self):
-        self.board = json.loads(self.board)
-        self.board = numpy.array(self.board)
+        json_board = json.loads(self.board)
+        #numpy -> np
+        self.board = np.array(json_board)
 
-"""
-    def add_game_to_active_games(self):
-        pass
+# """
+#     def add_game_to_active_games(self):
+#         pass
 
-    def update_active_game(self, db: ActiveGameManager):
-        db.updateGame("Frank", "John", self.to_JSON())
-        self.from_JSON()
-"""
+#     def update_active_game(self, db: ActiveGameManager):
+#         db.updateGame("Frank", "John", self.to_JSON())
+#         self.from_JSON()
+# """
+    # def add_game_to_active_games(self, db: ActiveGameManager):
+    #     db.addGame("Frank", "John", self.to_JSON())
+    #     self.from_JSON()
+
+    # def update_active_game(self, db: ActiveGameManager):
+    #     db.updateGame("Frank", "John", self.to_JSON())
+    #     self.from_JSON()
+
+    def get_player(self, num):
+        if self.player_one.num == num:
+            return self.player_one
+        else:
+            return self.player_two
+

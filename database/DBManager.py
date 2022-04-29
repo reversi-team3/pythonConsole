@@ -26,11 +26,6 @@ class DBManager:
             query = """
                     CREATE DATABASE IF NOT EXISTS REVERSIDB1;
                     USE REVERSIDB1;
-                    DROP TABLE IF EXISTS leaderboard;
-                    DROP TABLE IF EXISTS disk;
-                    DROP TABLE IF EXISTS game;
-                    DROP TABLE IF EXISTS player;
-
                     CREATE TABLE IF NOT EXISTS player(
                     username char(255),
                     pw char(255),
@@ -60,6 +55,13 @@ class DBManager:
                     g_id int,
                     color char(255),
                     foreign key (g_id) references game(g_id)
+                    );
+                    CREATE TABLE IF NOT EXISTS ActiveGames(
+                    username1 char(255),
+                    username2 char(255),
+                    game JSON,
+                    turn char(255),
+                    primary key (username1)
                     );
 
                     INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user2', '1234', 29, 0,72,22);
@@ -137,5 +139,36 @@ class DBManager:
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
+            row = cursor.fetchall()
+            return row
+
+    # kihang add
+    def addGame(self, username1, username2, game):
+        query = f"INSERT INTO ActiveGames (username1, username2, game, turn) VALUES {username1, username2, game, username1} ON DUPLICATE KEY UPDATE game=VALUES(game);"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def updateGame(self, username1, game, turn):
+        query1 = f"UPDATE ActiveGames SET game = \'{game}\', turn = \'{turn}\'  WHERE username1 = \"{username1}\";"
+        with self.con.cursor() as cursor:
+            cursor.execute(query1)
+            self.con.commit()
+        # query2 = f"UPDATE ActiveGames SET game = null WHERE username2 = \"{username2}\";"
+        # with self.con.cursor() as cursor:
+        #     cursor.execute(query2)
+        #     self.con.commit()
+
+    def deleteGame(self, username1):
+        query1 = f"DELETE FROM ActiveGames WHERE username1 = \'{username1}\';"
+        with self.con.cursor() as cursor:
+            cursor.execute(query1)
+            self.con.commit()
+
+    def checkGame(self, username):
+        query = "select * from ActiveGames where username1 = %s"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query, (username,))
             row = cursor.fetchall()
             return row
