@@ -305,13 +305,13 @@ class GameModePage(tk.Frame):
         if mode == 'ai':
             self.controller.game_controller.model.player_two = AIPlayer(self.controller.game_controller.model)
             self.controller.game_controller.model.player_two.change_difficulty(self.options_type.get())
-        elif mode == 'local' or mode == 'online':
+        elif mode == 'local':
             self.controller.game_controller.model.player_one = LocalPlayer(self.controller.game_controller.model.player_one.username,
                                                                            self.controller.game_controller.model.player_one.color, 1)
             self.controller.game_controller.model.player_two = LocalPlayer("Player2", Color.WHITE)
             self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         elif mode == 'online':
-            self.controller.game_controller.model = ModelProxy()
+            self.controller.game_controller.model = ModelProxy(self.controller.game_controller.model.player_one)
             self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
         self.controller.change_page("PlayPage")

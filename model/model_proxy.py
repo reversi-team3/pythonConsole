@@ -6,20 +6,19 @@ from model.player import Player
 
 
 class ModelProxy:
-    def __init__(self, server='127.0.0.1', port=3000, buffer_size=1024):
+    def __init__(self, player, server='127.0.0.1', port=3000, buffer_size=1024):
         self.socket = socket.socket()
         self.socket.connect((server, port))
         self.buffer_size = buffer_size
 
         self.board = 0
-        self.curr_player = Player.X
+        self.curr_player = player
         self.set_board_size()
         self.zeros = self.board.size - 4
 
     def send(self, msg):
         binary = pickle.dumps(msg)
         self.socket.sendall(binary)
-
         result_binary = self.socket.recv(self.buffer_size)
         response, new_self = pickle.loads(result_binary)
         self.update_self(new_self)

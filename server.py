@@ -1,16 +1,15 @@
 import socket
 import pickle
 import threading
-from collections import OrderedDict
 from model.game_model import Game
 from database.ActiveGameManager import ActiveGameManager
 from database.DBManager import DBManager
 
 
 class Server:
-    def __init__(self, host='127.0.0.1', port=3000, buffer_size=1024):
-        self.models = {}
-        self.players = OrderedDict() # PlayerObject -> Model
+    def __init__(self, host='127.0.0.1', port=3456, buffer_size=1024):
+        self.models = {} # Model -> (Username, Port), (Username, Port)
+        # self.players = OrderedDict() # PlayerObject -> Model
         self.host = host
         self.port = port
         self.buffer_size = buffer_size
@@ -44,13 +43,15 @@ class Server:
                     break
                 print('Here')
                 result = (Server.delegate(self, model, msg), model)
+                print(result)
                 result_binary = pickle.dumps(result)
                 conn.sendall(result_binary)
 
     def delegate(self, model: Game, msg):
         msg_name = msg[0]
         if msg_name == "set_board_size":
-            return model.set_board_size(msg[1])
+            model.set_board_size(msg[1])
+            return model.game_state
         elif msg_name == "is_legal_move":
             return model.is_legal_move(msg[1], msg[2], msg[3], msg[4])
         elif msg_name == "make_move":

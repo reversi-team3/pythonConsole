@@ -45,6 +45,7 @@ class Game:
             # should probably initialize the db server connection here and refer to it as needed
             # instead of opening/closing in every method call
         self.db = DBManager.get_instance()
+        self.game_state = [self.board, self.curr_player]
 
 
     # not sure if this is necessary
