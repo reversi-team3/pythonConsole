@@ -62,19 +62,7 @@ class DBManager:
                     game JSON,
                     turn char(255),
                     primary key (username1)
-                    );
-
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user2', '1234', 29, 0,72,22);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user3', '1234', 29, 100,2,23);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user4', '1234', 12, 15,23,24);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user5', '1234', 12, 19,7,21);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user6', '1234', 62, 91,7,22);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user7', '1234', 12, 31,76,21);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user8', '1234', 27, 21,5,20);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user9', '1234', 12, 523,4,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user10','1234', 2, 1,3,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user11','1234', 12, 134,72,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user12','1234', 23, 1,7,2);"""
+                    );"""
 
             with conn.cursor() as cursor:
                 lines = query.split(';')

@@ -122,9 +122,10 @@ class LoginPage(tk.Frame):
         login_success_screen.title("Success")
         login_success_screen.geometry("150x100")
         tk.Label(login_success_screen, text="Login Success").pack()
-        tk.Button(login_success_screen, text="OK",
-                  command=self.delete_login_success(username)).pack()
         self.controller.game_controller.model.player_one = OnlinePlayer(username, Color.BLACK, 1)
+        tk.Button(login_success_screen, text="OK",
+                  command=lambda: self.delete_login_success(self.controller.game_controller.model.player_one)).pack()
+
 
     def password_not_recognised(self):
         global password_not_recog_screen
@@ -146,16 +147,17 @@ class LoginPage(tk.Frame):
 
     # Deleting popups
 
-    def delete_login_success(self, username):
+    def delete_login_success(self, player):
         login_success_screen.destroy()
         self.controller.change_page("MainPage")
-        valid = self.controller.game_controller.model.db.checkGame(username)
-        if valid:
+        valid = self.controller.game_controller.model.db.checkGame(player.username)
+        # self.controller.game_controller.model.from_JSON()
+        if valid[0]:
             answer = tk.messagebox.askyesno(title='Continue?',
-                    message='Would you like to continue your crashed game?')
+                                            message='Would you like to continue your crashed game?')
             if answer:
-                self.controller.change_page("PlayPage", OnlinePlayer(username, Color.BLACK), valid[3], valid[2])
-    
+                self.controller.change_page("PlayPage", player, valid[0][3], valid[0][2])
+
 
 
 
@@ -439,7 +441,9 @@ class PlayPage(tk.Frame, GameView):
 
         # return f'{i},{j}'
 
-    def start_game(self, player, turn, board=None ):
+    def start_game(self, player, turn, board=None):
+        if board:
+            self.board = board
         self.controller.game_controller.reset_game(player, board, turn)
         # self.controller.game_controller.model.add_game_to_active_games()
         self.board = self.controller.game_controller.model.board

@@ -118,6 +118,8 @@ class NewController:
     def reset_game(self, player_one, board = None, turn = None):
         if board:
             self.model = Game(player_one, LocalPlayer("Player2", Color.WHITE), board, turn)
+            self.model.from_JSON()
+            # print(self.model.board)
         else:
             self.model = Game(self.model.player_one, self.model.player_two)
             size = self.model.board.shape[0]
