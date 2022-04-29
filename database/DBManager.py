@@ -94,13 +94,13 @@ class DBManager:
     #     cursor.execute(query1)
 
     def addPlayer(self, username, pw):
-        query = "INSERT INTO player (username, pw) VALUES (%s, %s)"
+        query = "INSERT INTO player (username, pw) VALUES (%s, %s);"
         with self.con.cursor() as cursor:
             cursor.execute(query, (username, pw))
             self.con.commit()
 
     def checkPlayer(self, username):
-        query = "select * from player where username = %s"
+        query = "select * from player where username = %s;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))
@@ -108,7 +108,7 @@ class DBManager:
             return row
 
     def checkRank(self):
-        query = "SELECT username FROM player ORDER BY win DESC LIMIT 10"
+        query = "SELECT username FROM player ORDER BY win DESC LIMIT 10;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
@@ -116,14 +116,14 @@ class DBManager:
             return row
 
     def updateLeaderboard(self, username, rank):
-        query = "INSERT INTO leaderboard (username, ranking) VALUES (%s, %s)"
+        query = "INSERT INTO leaderboard (username, ranking) VALUES (%s, %s);"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username, rank))
             self.con.commit()
 
     def getLeaderboard(self):
-        query = "SELECT * FROM leaderboard"
+        query = "SELECT * FROM leaderboard;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
@@ -154,7 +154,7 @@ class DBManager:
             self.con.commit()
 
     def checkGame(self, username):
-        query = "select * from ActiveGames where username1 = %s"
+        query = "select * from ActiveGames where username1 = %s;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))
@@ -162,9 +162,17 @@ class DBManager:
             return row
 
     def getElo(self, username):
-        query = "select elo from player where username1 = %s"
+        query = "select elo from player where username1 = %s;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))
             row = cursor.fetchall()
             return row
+
+    def updateElo(self, username, elo):
+        query = f"update player set elo = \'{elo}\' where username = \'{username}\';"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+

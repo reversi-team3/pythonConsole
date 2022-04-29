@@ -1,7 +1,7 @@
 import socket
 import pickle
 import threading
-
+from collections import OrderedDict
 from model.game_model import Game
 from database.ActiveGameManager import ActiveGameManager
 from database.DBManager import DBManager
@@ -10,6 +10,7 @@ from database.DBManager import DBManager
 class Server:
     def __init__(self, host='127.0.0.1', port=3000, buffer_size=1024):
         self.models = {}
+        self.players = OrderedDict() # PlayerObject -> Model
         self.host = host
         self.port = port
         self.buffer_size = buffer_size

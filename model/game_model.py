@@ -275,11 +275,15 @@ class Game:
 
     def update_elo(self, winner):
         if winner == self.player_one:
-            loser = self.player_two
+            player_one_elo = self.player_one.update_elo(self.player_two.elo, True)
+            player_two_elo = self.player_two.update_elo(self.player_one.elo, False)
         else:
-            loser = self.player_one
-        probability = 1 * 1 // (1 + 1 * math.pow(10, 1 * (loser.elo - winner.elo) // 400)) # get probability of self winning
+            player_one_elo = self.player_one.update_elo(self.player_two.elo, False)
+            player_two_elo = self.player_two.update_elo(self.player_one.elo, True)
+
+        self.db.updateElo(self.player_one.username, player_one_elo)
+        self.db.updateElo(self.player_two.username, player_two_elo)
 
         # questionable logic
-        winner.elo = 30 + winner.elo * (1 - probability)
-        loser.elo = 30 + loser.elo * (0 - probability)
+        #winner.elo = 30 + winner.elo * (1 - probability)
+        #loser.elo = 30 + loser.elo * (0 - probability)

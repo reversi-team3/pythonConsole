@@ -43,6 +43,6 @@ class BasePlayer(ABC):
     def receive_move(self) -> (int, int):
         pass
 
-    #@abstractmethod
-    #def update_elo(self, opponent_rating, self_won):
-    #    pass
+    @abstractmethod
+    def update_elo(self, opponent_rating, self_won):
+        pass
