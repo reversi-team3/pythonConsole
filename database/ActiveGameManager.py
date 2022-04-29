@@ -1,6 +1,6 @@
 from mysql.connector import connect, Error
 
-from database import DBManager
+from database.DBManager import DBManager
 
 
 class ActiveGameManager:

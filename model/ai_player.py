@@ -10,11 +10,12 @@ import numpy as np
 
 
 class AIPlayer(BasePlayer):
-    def __init__(self, model: Game, color=Color.WHITE):
+    def __init__(self, model: Game, color=Color.WHITE, num=2):
         super().__init__(color)
         self.difficulty = None
         self.model = model
         self.username = None
+        self.num = num
 
     def change_difficulty(self, difficulty):
         if difficulty == "Easy":
@@ -94,3 +95,6 @@ class AIPlayer(BasePlayer):
 
     def set_game(self, game):
         self.model = game
+
+    def update_elo(self, opponent_rating, self_won):
+        pass

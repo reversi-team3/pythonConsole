@@ -1,3 +1,4 @@
+import ast
 import json
 
 import numpy as np
@@ -32,13 +33,13 @@ class Game:
                 self.player_two = args[1]
 
             else:
-                self.player_one = OnlinePlayer("Player1", Color.BLACK)
+                self.player_one = OnlinePlayer("Player1", Color.BLACK, 1)
                 self.player_two = OnlinePlayer("Player2", Color.WHITE)
             self.board = 0
             self.curr_player = self.player_one
             self.set_board_size()
             # used for runtime efficiency of has_legal_moves()
-        self.zeros = self.board.size - 4
+        self.zeros = len(self.board) - 4
             #self.db = None
             # should probably initialize the db server connection here and refer to it as needed
             # instead of opening/closing in every method call
@@ -70,7 +71,6 @@ class Game:
         if board[row, col] != 0:
             return False
         else:
-            print("here")
             # Generating the list of neighbours
             neighbour = False
             neighbours = []
@@ -245,9 +245,7 @@ class Game:
         #                   sort_keys=True, indent=4)
 
     def from_JSON(self):
-        json_board = json.loads(self.board)
-        #numpy -> np
-        self.board = np.array(json_board)
+        self.board = np.array(json.loads(json.loads(self.board)))
 
 # """
 #     def add_game_to_active_games(self):

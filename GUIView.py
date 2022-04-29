@@ -151,8 +151,7 @@ class LoginPage(tk.Frame):
         login_success_screen.destroy()
         self.controller.change_page("MainPage")
         valid = self.controller.game_controller.model.db.checkGame(player.username)
-        # self.controller.game_controller.model.from_JSON()
-        if valid[0]:
+        if valid:
             answer = tk.messagebox.askyesno(title='Continue?',
                                             message='Would you like to continue your crashed game?')
             if answer:
@@ -437,7 +436,7 @@ class PlayPage(tk.Frame, GameView):
             time.sleep(.75)
             move2 = self.controller.game_controller.model.curr_player.receive_move(i, j)
             self.controller.game_controller.play_turn(move2[0], move2[1])
-            self.controller.game_controller.update_active_game()
+            # self.controller.game_controller.update_active_game()
 
         # return f'{i},{j}'
 
@@ -448,8 +447,9 @@ class PlayPage(tk.Frame, GameView):
         # self.controller.game_controller.model.add_game_to_active_games()
         self.board = self.controller.game_controller.model.board
         self.set_buttons()
-        self.display_curr_player(self.controller.game_controller.model.player_one)
-        self.controller.game_controller.add_active_game_to_db()
+        self.display_curr_player(self.controller.game_controller.model.curr_player)
+        if not isinstance(self.controller.game_controller.model.player_two, AIPlayer):
+            self.controller.game_controller.add_active_game_to_db()
 
     def display_exit(self):
 
