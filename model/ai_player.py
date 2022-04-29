@@ -49,7 +49,7 @@ class AIPlayer(BasePlayer):
         valid_moves = []
         for i in range(len(board)):
             for j in range(len(board)):
-                if board[i][j] == 0 and Game.is_legal_move(board, self.model.player_two, i, j):
+                if board[i][j] == 0 and Game.is_legal_move(board, self.model.player_two.num, i, j):
                     valid_moves.append([i, j])
         return valid_moves
 
@@ -59,9 +59,9 @@ class AIPlayer(BasePlayer):
         player_o_disks = 0
         for i in range(len(board)):
             for j in range(len(board)):
-                if board[i][j] == self.model.player_one:
+                if board[i][j] == self.model.player_one.num:
                     player_x_disks += 1
-                if board[i][j] == self.model.player_two:
+                if board[i][j] == self.model.player_two.num:
                     player_o_disks += 1
 
         return player_o_disks - player_x_disks

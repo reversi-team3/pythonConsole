@@ -452,7 +452,6 @@ class PlayPage(tk.Frame, GameView):
             self.controller.game_controller.add_active_game_to_db()
 
     def display_exit(self):
-
         exit_message = messagebox.askquestion("Exiting", "Are you sure you want to exit?")
         if (exit_message == 'yes'):
             self.controller.game_controller.model.db.deleteGame(self.controller.game_controller.model.player_one.username)
