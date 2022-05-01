@@ -12,9 +12,10 @@ from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 from mysql.connector import connect, Error
 from getpass import getpass
+from model.AModel import AGame
 
 
-class Game:
+class Game(AGame):
     def __init__(self, *args):
         self.id = random.randint(0, 1000)
         
@@ -264,7 +265,10 @@ class Game:
             return self.player_two
 
     def set_player_elo(self):
-        self.player_one.elo = self.db.getElo(self.player_one.username)
+        if "Guest" in self.player_one.username:
+            return
+        elo = self.db.getElo(self.player_one.username)
+        self.player_one.elo = elo[0][0]
         # set player_two elo
 
     def update_elo(self, winner):

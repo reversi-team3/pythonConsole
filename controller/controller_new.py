@@ -69,9 +69,7 @@ class NewController:
                     game_ended = True
 
         if game_ended:
-            self.view.display_board()
-            winner = self.model.get_winner()
-            self.view.display_winner(winner)
+            self.game_over()
         else:
             self.view.display_board()
             self.view.display_curr_player(self.model.curr_player)
@@ -110,20 +108,19 @@ class NewController:
 
     def game_over(self):
         self.view.display_board()
-        self.model.player_one.update_elo(self.model.player_two.elo, self.model.get_winner() == self.model.player_one)
-        self.model.player_two.update_elo(self.model.player_one.elo, self.model.get_winner() == self.model.player_two)
+        self.model.update_elo(self.model.get_winner())
         self.view.display_winner(self.model.get_winner())
         
 
-    def reset_game(self, player_one, board = None, turn = None):
+    def reset_game(self, player_one, size, board = None, turn = None):
         if board:
             self.model = Game(player_one, LocalPlayer("Player2", Color.WHITE), board, turn)
             self.model.from_JSON()
             # print(self.model.board)
         else:
             self.model = Game(self.model.player_one, self.model.player_two)
-            size = self.model.board.shape[0]
             self.model.set_board_size(size)
+        self.model.set_player_elo()
        
         # FIXME shouldn't be initializing a game from inside the controller
         self.model.player_two.set_game(self.model)

@@ -31,7 +31,7 @@ class GUIView(tk.Tk):
         self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
-        for F in (LoginPage, MainPage, SettingsPage, PlayPage, GameModePage, RegisterPage, OnlinePage):
+        for F in (LoginPage, MainPage, SettingsPage, PlayPage, GameModePage, RegisterPage, OnlinePage, LeaderboardPage):
             page_name = F.__name__
             # print(F.__class__)
             # frame = F(parent=self.container, controller=self)
@@ -100,7 +100,6 @@ class LoginPage(tk.Frame):
 
     def guest_play(self):
         self.controller.game_controller.model.player_one = OnlinePlayer("Guest" + str(random.randint(1, 1000)), Color.BLACK, 1)
-        print(self.controller.game_controller.model.player_one.username)
         self.controller.change_page("MainPage")
 
     def login_verify(self, username, password):
@@ -124,6 +123,7 @@ class LoginPage(tk.Frame):
         login_success_screen.title("Success")
         login_success_screen.geometry("150x100")
         tk.Label(login_success_screen, text="Login Success").pack()
+        # self.controller.game_controller.model.player_one = OnlinePlayer("username", Color.BLACK, 1)
         self.controller.game_controller.model.player_one.username = username
         tk.Button(login_success_screen, text="OK",
                   command=lambda: self.delete_login_success(self.controller.game_controller.model.player_one)).pack()
@@ -258,8 +258,8 @@ class MainPage(tk.Frame):
                                       command=lambda: self.sign_out())
         exit_button = tk.Button(self, text="Exit",
                                 command=lambda: self.close())
-        username = tk.Label(self, text=self.controller.game_controller.model.player_one.username)
-        username.pack(side='top', anchor='nw')
+        #username = tk.Label(self, text=self.controller.game_controller.model.player_one.username)
+        #username.pack(side='top', anchor='nw')
         play_button.pack(pady=5)
         settings_button.pack(pady=5)
         leaderboard_button.pack(pady=5)
@@ -307,17 +307,19 @@ class GameModePage(tk.Frame):
         if mode == 'ai':
             self.controller.game_controller.model.player_two = AIPlayer(self.controller.game_controller.model)
             self.controller.game_controller.model.player_two.change_difficulty(self.options_type.get())
+            self.controller.change_page("PlayPage")
         elif mode == 'local':
             self.controller.game_controller.model.player_one = LocalPlayer(self.controller.game_controller.model.player_one.username,
                                                                            self.controller.game_controller.model.player_one.color, 1)
             self.controller.game_controller.model.player_two = LocalPlayer("Player2", Color.WHITE)
-            self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
+            self.controller.change_page("PlayPage")
+            #self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         elif mode == 'online':
             self.controller.game_controller.model = ModelProxy(self.controller.game_controller.model.player_one)
             self.controller.change_page("OnlinePage")
     #        self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
-    #    self.controller.change_page("PlayPage")
+
 
 
 class OnlinePage(tk.Frame):
@@ -413,7 +415,7 @@ class PlayPage(tk.Frame, GameView):
         self.controller = controller
         self.board = board
         # self.board_size = board.shape[0]
-        self.board_size = 8
+        self.board_size = board.shape[0]
         self.buttons = [[0 for x in range(self.board_size)] for y in range(self.board_size)]
         exit_button = tk.Button(self, text="Exit Game",
                                 command=lambda: self.display_exit())
@@ -432,8 +434,7 @@ class PlayPage(tk.Frame, GameView):
         self.invalid_move_label.grid_forget()
         for i in range(self.board_size):
             for j in range(self.board_size):
-                if self.board[i][j] == player_one.num and \
-                        self.buttons[i][j].cget('bg') != self.controller.game_controller.model.get_player(self.board[i][j]).color.value:
+                if self.board[i][j] == player_one.num and self.buttons[i][j].cget('bg') != self.controller.game_controller.model.get_player(self.board[i][j]).color.value:
                     self.buttons[i][j].configure(bg=player_one.color.value)
                     self.buttons[i][j].configure(command=None)
                 elif self.board[i][j] == player_two.num and self.buttons[i][j].cget('bg') != self.controller.game_controller.model.get_player(self.board[i][j]).color.value:
@@ -457,7 +458,11 @@ class PlayPage(tk.Frame, GameView):
         self.curr_player.config(text=f'Current Player:{player.username}')
 
     def display_winner(self, winner):
-        messagebox.showinfo("Congratulations!", f'Player {winner.username} has won! Congratulations! New Elo: {winner.elo}')
+        if winner == self.controller.game_controller.model.player_one:
+            messagebox.showinfo("Congratulations!",
+                                f'Player {winner.username} has won! New Elo: {winner.elo}')
+        else:
+            messagebox.showinfo("You lost!", f'Player {winner.username} has won! New Elo: {self.controller.game_controller.model.player_one.elo}')
         self.controller.change_page("MainPage")
 
     def display_illegal_move(self):
@@ -483,7 +488,7 @@ class PlayPage(tk.Frame, GameView):
     def start_game(self, player, turn, board=None):
         if board:
             self.board = board
-        self.controller.game_controller.reset_game(player, board, turn)
+        self.controller.game_controller.reset_game(player, self.board_size, board, turn)
         # self.controller.game_controller.model.add_game_to_active_games()
         self.board = self.controller.game_controller.model.board
         self.set_buttons()

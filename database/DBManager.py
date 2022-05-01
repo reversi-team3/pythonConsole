@@ -128,7 +128,7 @@ class DBManager:
             self.con.commit()
 
     def getLeaderboard(self):
-        query = "SELECT * FROM leaderboard;"
+        query = "SELECT username, elo FROM player ORDER BY elo DESC;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
@@ -167,7 +167,7 @@ class DBManager:
             return row
 
     def getElo(self, username):
-        query = "select elo from player where username1 = %s;"
+        query = "select elo from player where username = %s;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))

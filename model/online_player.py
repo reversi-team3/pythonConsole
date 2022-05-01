@@ -28,11 +28,11 @@ class OnlinePlayer(BasePlayer):
         self.elo = elo
 
     def update_elo(self, opponent_rating, self_won):
-        probability = 1 * 1 // (1 + 1 * math.pow(10, 1 * (opponent_rating - self.elo) // 400)) # get probability of self winning
+        probability = 1 * 1 / (1 + 1 * math.pow(10, 1 * (opponent_rating - self.elo) / 400)) # get probability of self winning
         if self_won:
-            self.elo = 30 + self.elo * (1 - probability)
+            self.elo = abs(int(30 + self.elo * (1 - probability)))
         else:
-            self.elo = 30 + self.elo * (0 - probability)
+            self.elo = abs(int(30 + self.elo * (0 - probability)))
 
         return self.elo
 
