@@ -62,7 +62,12 @@ class DBManager:
                     game JSON,
                     turn char(255),
                     primary key (username1)
-                    );"""
+                    );
+                    CREATE TABLE IF NOT EXISTS ActivePlayers(
+                    username char(255),
+                    primary key (username)
+                    );
+                    INSERT INTO ActivePlayers (username) VALUES ('Frank1234');"""
 
             with conn.cursor() as cursor:
                 lines = query.split(';')
@@ -175,4 +180,24 @@ class DBManager:
         with self.con.cursor() as cursor:
             cursor.execute(query)
             self.con.commit()
+
+    def addActivePlayer(self, username):
+        query = f"INSERT INTO ActivePlayers (username) VALUES (\'{username}\');"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def deleteActivePlayer(self, username):
+        query = f"DELETE FROM ActivePlayers WHERE username = \'{username}\';"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def getActivePlayers(self):
+        query = f"SELECT * FROM ActivePlayers;"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            row = cursor.fetchall()
+            return row
+
 

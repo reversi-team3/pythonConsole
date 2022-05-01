@@ -1,6 +1,7 @@
 import ast
 import json
 import math
+import random
 
 import numpy as np
 
@@ -11,14 +12,11 @@ from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 from mysql.connector import connect, Error
 from getpass import getpass
-class NumpyArrayEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        return json.JSONEncoder.default(self, obj)
+
 
 class Game:
     def __init__(self, *args):
+        self.id = random.randint(0, 1000)
         
         if len(args) > 2:
             self.player_one = args[0]
@@ -34,7 +32,7 @@ class Game:
                 self.player_two = args[1]
 
             else:
-                self.player_one = OnlinePlayer("Guest", Color.BLACK, 1)
+                self.player_one = OnlinePlayer("Guest" + str(random.randint(1, 1000)), Color.BLACK, 1)
                 self.player_two = OnlinePlayer("Player2", Color.WHITE)
             self.board = 0
             self.curr_player = self.player_one
@@ -46,11 +44,6 @@ class Game:
             # instead of opening/closing in every method call
         self.db = DBManager.get_instance()
         self.game_state = [self.board, self.curr_player]
-
-
-    # not sure if this is necessary
-    def set_db(self, db):
-        self.db = db
 
     def set_board_size(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.object)
@@ -288,3 +281,7 @@ class Game:
         # questionable logic
         #winner.elo = 30 + winner.elo * (1 - probability)
         #loser.elo = 30 + loser.elo * (0 - probability)
+
+    def get_online_players(self):
+        return self.db.getActivePlayers()
+

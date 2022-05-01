@@ -4,7 +4,7 @@ from model.player import BasePlayer, player_color, Color
 
 
 class OnlinePlayer(BasePlayer):
-    def __init__(self, username, color: Color, number = 2):
+    def __init__(self, username, color: Color, number=2):
         super().__init__(color)
         self.username = username
         self.elo = 1500 # pull elo from DB
