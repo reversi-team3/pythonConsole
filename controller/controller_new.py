@@ -116,7 +116,6 @@ class NewController:
         if board:
             self.model = Game(player_one, LocalPlayer("Player2", Color.WHITE), board, turn)
             self.model.from_JSON()
-            # print(self.model.board)
         else:
             self.model = Game(self.model.player_one, self.model.player_two)
             self.model.set_board_size(size)
@@ -124,8 +123,6 @@ class NewController:
        
         # FIXME shouldn't be initializing a game from inside the controller
         self.model.player_two.set_game(self.model)
-        #self.model.set_player_elo()
-        # self.model.set_board_size(self.model.board.shape[0])
 
     def add_active_game_to_db(self):
         self.model.db.addGame(self.model.player_one.username, self.model.player_two.username, self.model.to_JSON())

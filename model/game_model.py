@@ -236,27 +236,10 @@ class Game(AGame):
         json_board = json.dumps(json_board)
         return json.dumps(json_board, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
-        # return json.dumps(self, default=vars,
-        #                   sort_keys=True, indent=4)
 
     def from_JSON(self):
         self.board = np.array(json.loads(json.loads(self.board)))
 
-# """
-#     def add_game_to_active_games(self):
-#         pass
-
-#     def update_active_game(self, db: ActiveGameManager):
-#         db.updateGame("Frank", "John", self.to_JSON())
-#         self.from_JSON()
-# """
-    # def add_game_to_active_games(self, db: ActiveGameManager):
-    #     db.addGame("Frank", "John", self.to_JSON())
-    #     self.from_JSON()
-
-    # def update_active_game(self, db: ActiveGameManager):
-    #     db.updateGame("Frank", "John", self.to_JSON())
-    #     self.from_JSON()
 
     def get_player(self, num):
         if self.player_one.num == num:
@@ -281,10 +264,6 @@ class Game(AGame):
 
         self.db.updateElo(self.player_one.username, player_one_elo)
         self.db.updateElo(self.player_two.username, player_two_elo)
-
-        # questionable logic
-        #winner.elo = 30 + winner.elo * (1 - probability)
-        #loser.elo = 30 + loser.elo * (0 - probability)
 
     def get_online_players(self):
         return self.db.getActivePlayers()

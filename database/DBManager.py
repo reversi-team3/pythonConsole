@@ -86,17 +86,6 @@ class DBManager:
             database="REVERSIDB1"
         )
 
-    # def dummyPlayer(self):
-    #     query = "INSERT INTO player (username, pw) VALUES (%s,%s)"
-    #     with self.con.cursor() as cursor:
-
-    #         cursor.execute(query,('kihang','kim'))
-    #         self.con.commit()
-
-    # def get_player(self):
-    #     query1 = "SELECT * FROM Players"
-    # with self.conn.cursor() as cursor:
-    #     cursor.execute(query1)
 
     def addPlayer(self, username, pw):
         query = "INSERT INTO player (username, pw) VALUES (%s, %s);"
@@ -147,10 +136,6 @@ class DBManager:
         with self.con.cursor() as cursor:
             cursor.execute(query1)
             self.con.commit()
-        # query2 = f"UPDATE ActiveGames SET game = null WHERE username2 = \"{username2}\";"
-        # with self.con.cursor() as cursor:
-        #     cursor.execute(query2)
-        #     self.con.commit()
 
     def deleteGame(self, username1):
         query1 = f"DELETE FROM ActiveGames WHERE username1 = \'{username1}\';"

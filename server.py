@@ -27,10 +27,6 @@ class Server:
                 thread = threading.Thread(target=self.handle_client, args=(conn, address))
                 thread.start()
 
-    # """ TODO: possibly sending model to server, since players are changing, colors are changing, etc
-    #     def get_model(self, model):
-    #         return model
-    # """
     def handle_client(self, conn, address):
         with conn:
             while True:

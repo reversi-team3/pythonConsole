@@ -20,13 +20,10 @@ class ModelProxy(AGame):
 
         self.curr_player = self.player_one
 
-        # self.set_board_size()
-
     def send(self, msg):
         binary = pickle.dumps(msg)
         self.socket.sendall(binary)
         result_binary = self.socket.recv(self.buffer_size)
-        # print(pickle.loads(result_binary))
         board, curr_player = pickle.loads(result_binary)
         self.update_self(board, curr_player)
         return board

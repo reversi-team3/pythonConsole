@@ -33,8 +33,6 @@ class GUIView(tk.Tk):
         self.frames = {}
         for F in (LoginPage, MainPage, SettingsPage, PlayPage, GameModePage, RegisterPage, OnlinePage, LeaderboardPage):
             page_name = F.__name__
-            # print(F.__class__)
-            # frame = F(parent=self.container, controller=self)
             if F == PlayPage:
                 self.game_controller.change_board_size(8)
                 frame = F(parent=self.container, controller=self, board=self.board)
@@ -47,21 +45,12 @@ class GUIView(tk.Tk):
 
         self.change_page("LoginPage")
 
-    '''
-    def set_controller(self, game_controller):
-        self.game_controller = game_controller
-    '''
-
     def change_page(self, page_name, player=None, turn = None, board=None):
         frame = self.frames[page_name]
         frame.tkraise()
         if page_name == "PlayPage":
             frame.start_game(player, turn, board)
             frame.display_board()
-            # self.frames[page_name].board_size
-            # self.frames[page_name] = PlayPage()
-            # self.game_controller.run_game()
-            # self.game_controller.run_game()
 
     def change_board_size(self, size):
         self.frames["PlayPage"] = PlayPage(parent=self.container, controller=self,
@@ -123,7 +112,6 @@ class LoginPage(tk.Frame):
         login_success_screen.title("Success")
         login_success_screen.geometry("150x100")
         tk.Label(login_success_screen, text="Login Success").pack()
-        # self.controller.game_controller.model.player_one = OnlinePlayer("username", Color.BLACK, 1)
         self.controller.game_controller.model.player_one.username = username
         tk.Button(login_success_screen, text="OK",
                   command=lambda: self.delete_login_success(self.controller.game_controller.model.player_one)).pack()
@@ -146,8 +134,6 @@ class LoginPage(tk.Frame):
         tk.Label(user_not_found_screen, text="User Not Found").pack()
         tk.Button(user_not_found_screen, text="OK",
                   command=self.delete_user_not_found_screen).pack()
-
-    # Deleting popups
 
     def delete_login_success(self, player):
         login_success_screen.destroy()
@@ -173,12 +159,10 @@ class RegisterPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        # username
         username_label = tk.Label(self, text='Username:')
         username_label.grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         username_entry = tk.Entry(self)
         username_entry.grid(row=0, column=1, sticky=tk.E, padx=5, pady=5)
-        # password
 
         password_label = tk.Label(self, text='Password:')
         password_label.grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
@@ -196,19 +180,8 @@ class RegisterPage(tk.Frame):
         back_button.grid(row=2, column=1, sticky=tk.W, padx=5, pady=5)
 
     def write_File(self, username_input, password_input):
-        # registration_label = tk.Label(self, text = '')
-        # registration_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
-        # error_label = tk.Label(self, text = '')
-        # error_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
         try:
             if username_input != '' and username_input != 'Guest' and password_input != '':
-                # blank_label = tk.Label(self, text = '                                 ')
-                # blank_label.grid(row = 5, column=1, sticky=tk.W, padx=5, pady=5)
-                # with open('Registration.txt', 'a') as file:
-                #     file.write(username_input + "\n")
-                #     file.write(password_input + "\n" + "\n")
-                #     file.close()
-                #     print ("Successful")
                 db.addPlayer(username_input, password_input)
 
                 registration_label = tk.Label(self, text='         Registration Success                      ',
@@ -217,7 +190,6 @@ class RegisterPage(tk.Frame):
             else:
                 error_label = tk.Label(self, text='    Username/Password cannot be blank', fg='red')
                 error_label.grid(row=5, column=1, sticky=tk.W, padx=5, pady=5)
-                # error_label.after(1000, error_label.destroy())
         except:
             self.failed_reg()
 
@@ -258,8 +230,6 @@ class MainPage(tk.Frame):
                                       command=lambda: self.sign_out())
         exit_button = tk.Button(self, text="Exit",
                                 command=lambda: self.close())
-        #username = tk.Label(self, text=self.controller.game_controller.model.player_one.username)
-        #username.pack(side='top', anchor='nw')
         play_button.pack(pady=5)
         settings_button.pack(pady=5)
         leaderboard_button.pack(pady=5)
@@ -313,11 +283,9 @@ class GameModePage(tk.Frame):
                                                                            self.controller.game_controller.model.player_one.color, 1)
             self.controller.game_controller.model.player_two = LocalPlayer("Player2", Color.WHITE)
             self.controller.change_page("PlayPage")
-            #self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         elif mode == 'online':
             self.controller.game_controller.model = ModelProxy(self.controller.game_controller.model.player_one)
             self.controller.change_page("OnlinePage")
-    #        self.controller.game_controller.model.set_db(ActiveGameManager(self.controller.game_controller.model.db))
         self.controller.game_controller.set_view(self.controller.frames["PlayPage"])
 
 
@@ -328,10 +296,7 @@ class OnlinePage(tk.Frame):
         self.controller = controller
         label = tk.Label(self, text="Opponent Selection")
         label.pack(side="top", pady=10)
-        # request players from model, which asks server
-        # this request will exist in modelproxy, but will pass in a normal model (?)
         players = self.controller.game_controller.model.get_online_players()
-        # print(players)
         self.players_options = tk.StringVar()
         self.players_options.set(players[0])
         drop_down = tk.OptionMenu(self, self.players_options, *players)
@@ -414,7 +379,6 @@ class PlayPage(tk.Frame, GameView):
         self.parent = parent
         self.controller = controller
         self.board = board
-        # self.board_size = board.shape[0]
         self.board_size = board.shape[0]
         self.buttons = [[0 for x in range(self.board_size)] for y in range(self.board_size)]
         exit_button = tk.Button(self, text="Exit Game",
@@ -439,14 +403,12 @@ class PlayPage(tk.Frame, GameView):
                     self.buttons[i][j].configure(command=None)
                 elif self.board[i][j] == player_two.num and self.buttons[i][j].cget('bg') != self.controller.game_controller.model.get_player(self.board[i][j]).color.value:
                     self.buttons[i][j].configure(bg=player_two.color.value)
-                    # slightly worse performance to call this on every color change
                     self.buttons[i][j].configure(command=None)
         self.update()
 
     def set_buttons(self):
         for i in range(self.board_size):
             for j in range(self.board_size):
-                # command=lambda arg=(i, j): self.button_clicked(arg)
                 button = 0
                 self.buttons.append(button)
                 self.buttons[i][j] = tk.Button(self, bg="green",
@@ -471,7 +433,6 @@ class PlayPage(tk.Frame, GameView):
     def display_no_legal_moves(self, player):
         messagebox.showerror("No Legal Moves", "No Legal Moves - Other Player's Turn")
 
-    # rename to make move
     def request_move(self, i, j):
         move = self.controller.game_controller.model.curr_player.receive_move(i, j)
         self.controller.game_controller.play_turn(move[0], move[1])
@@ -481,15 +442,12 @@ class PlayPage(tk.Frame, GameView):
             time.sleep(.75)
             move2 = self.controller.game_controller.model.curr_player.receive_move(i, j)
             self.controller.game_controller.play_turn(move2[0], move2[1])
-            # self.controller.game_controller.update_active_game()
 
-        # return f'{i},{j}'
 
     def start_game(self, player, turn, board=None):
         if board:
             self.board = board
         self.controller.game_controller.reset_game(player, self.board_size, board, turn)
-        # self.controller.game_controller.model.add_game_to_active_games()
         self.board = self.controller.game_controller.model.board
         self.set_buttons()
         self.display_curr_player(self.controller.game_controller.model.curr_player)
@@ -515,11 +473,6 @@ class LeaderboardPage(tk.Frame):
 
         rows = db.checkRank()
 
-        # for i, name in enumerate(rows):
-        #     db.updateLeaderboard(name,i+1)
-
-        # leaderboard = db.getLeaderboard()
-        # users = self.controller.game_controller.get_leaderboard()
         for x in rows:
             username = x[0]
             elo = db.getElo(username)
@@ -534,7 +487,5 @@ if __name__ == "__main__":
     controller = NewController(game)
     game_view = GUIView(controller, game.board)
     controller.set_view(game_view.frames["PlayPage"])
-
-    # game_view.set_controller(controller)
 
     game_view.mainloop()

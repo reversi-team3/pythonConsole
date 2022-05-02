@@ -8,11 +8,7 @@ class LocalPlayer(BasePlayer):
         super().__init__(color)
         self.username = username
         self.num = number
-    """
-    def get_elo(self):
-        # self.elo = pull from db
-        return elo
-    """
+
     def change_color(self, color):
         self.color = Color(color)
 
