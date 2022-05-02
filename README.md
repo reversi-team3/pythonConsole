@@ -2,6 +2,7 @@
 
 To begin the application please download the repository and run the following:
 <br />
-  server.py
-  main.py
+  - server.py
+  <br />
+  - main.py
 
