@@ -521,7 +521,11 @@ class LeaderboardPage(tk.Frame):
         # leaderboard = db.getLeaderboard()
         # users = self.controller.game_controller.get_leaderboard()
         for x in rows:
-            tk.Label(self, text=x).pack(pady=5)
+            username = x[0]
+            elo = db.getElo(username)
+            elo = elo[0][0]
+            display_text = f'Player: {username} | Elo: {elo}'
+            tk.Label(self, text=display_text).pack(pady=5)
 
 
 if __name__ == "__main__":
