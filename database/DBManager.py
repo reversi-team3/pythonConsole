@@ -20,21 +20,16 @@ class DBManager:
             conn = connect(
                 host='localhost',
                 user='Team3',
-                password="RobinsonCano24"
+                password="Team3"
             )
             print("DB Connected")
             query = """
                     CREATE DATABASE IF NOT EXISTS REVERSIDB1;
                     USE REVERSIDB1;
-                    DROP TABLE IF EXISTS leaderboard;
-                    DROP TABLE IF EXISTS disk;
-                    DROP TABLE IF EXISTS game;
-                    DROP TABLE IF EXISTS player;
-
                     CREATE TABLE IF NOT EXISTS player(
                     username char(255),
                     pw char(255),
-                    elo int DEFAULT 0,
+                    elo int DEFAULT 1500,
                     win int DEFAULT 0,
                     loss int DEFAULT 0,
                     tie int DEFAULT 0,
@@ -61,18 +56,18 @@ class DBManager:
                     color char(255),
                     foreign key (g_id) references game(g_id)
                     );
-
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user2', '1234', 29, 0,72,22);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user3', '1234', 29, 100,2,23);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user4', '1234', 12, 15,23,24);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user5', '1234', 12, 19,7,21);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user6', '1234', 62, 91,7,22);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user7', '1234', 12, 31,76,21);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user8', '1234', 27, 21,5,20);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user9', '1234', 12, 523,4,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user10','1234', 2, 1,3,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user11','1234', 12, 134,72,2);
-                    INSERT INTO player (username, pw, elo, win, loss, tie) VALUES ('user12','1234', 23, 1,7,2);"""
+                    CREATE TABLE IF NOT EXISTS ActiveGames(
+                    username1 char(255),
+                    username2 char(255),
+                    game JSON,
+                    turn char(255),
+                    primary key (username1)
+                    );
+                    CREATE TABLE IF NOT EXISTS ActivePlayers(
+                    username char(255),
+                    primary key (username)
+                    );
+                    INSERT INTO ActivePlayers (username) VALUES ('Frank1234');"""
 
             with conn.cursor() as cursor:
                 lines = query.split(';')
@@ -87,30 +82,19 @@ class DBManager:
         self.con = connect(
             host='localhost',
             user='Team3',
-            password="RobinsonCano24",
+            password="Team3",
             database="REVERSIDB1"
         )
 
-    # def dummyPlayer(self):
-    #     query = "INSERT INTO player (username, pw) VALUES (%s,%s)"
-    #     with self.con.cursor() as cursor:
-
-    #         cursor.execute(query,('kihang','kim'))
-    #         self.con.commit()
-
-    # def get_player(self):
-    #     query1 = "SELECT * FROM Players"
-    # with self.conn.cursor() as cursor:
-    #     cursor.execute(query1)
 
     def addPlayer(self, username, pw):
-        query = "INSERT INTO player (username, pw) VALUES (%s, %s)"
+        query = "INSERT INTO player (username, pw) VALUES (%s, %s);"
         with self.con.cursor() as cursor:
             cursor.execute(query, (username, pw))
             self.con.commit()
 
     def checkPlayer(self, username):
-        query = "select * from player where username = %s"
+        query = "select * from player where username = %s;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username,))
@@ -118,7 +102,7 @@ class DBManager:
             return row
 
     def checkRank(self):
-        query = "SELECT username FROM player ORDER BY win DESC LIMIT 10"
+        query = "SELECT username FROM player ORDER BY win DESC LIMIT 10;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
@@ -126,16 +110,79 @@ class DBManager:
             return row
 
     def updateLeaderboard(self, username, rank):
-        query = "INSERT INTO leaderboard (username, ranking) VALUES (%s, %s)"
+        query = "INSERT INTO leaderboard (username, ranking) VALUES (%s, %s);"
 
         with self.con.cursor() as cursor:
             cursor.execute(query, (username, rank))
             self.con.commit()
 
     def getLeaderboard(self):
-        query = "SELECT * FROM leaderboard"
+        query = "SELECT username, elo FROM player ORDER BY elo DESC;"
 
         with self.con.cursor() as cursor:
             cursor.execute(query)
             row = cursor.fetchall()
             return row
+
+    # kihang add
+    def addGame(self, username1, username2, game):
+        query = f"INSERT INTO ActiveGames (username1, username2, game, turn) VALUES {username1, username2, game, username1} ON DUPLICATE KEY UPDATE game=VALUES(game);"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def updateGame(self, username1, game, turn):
+        query1 = f"UPDATE ActiveGames SET game = \'{game}\', turn = \'{turn}\'  WHERE username1 = \"{username1}\";"
+        with self.con.cursor() as cursor:
+            cursor.execute(query1)
+            self.con.commit()
+
+    def deleteGame(self, username1):
+        query1 = f"DELETE FROM ActiveGames WHERE username1 = \'{username1}\';"
+        with self.con.cursor() as cursor:
+            cursor.execute(query1)
+            self.con.commit()
+
+    def checkGame(self, username):
+        query = "select * from ActiveGames where username1 = %s;"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query, (username,))
+            row = cursor.fetchall()
+            return row
+
+    def getElo(self, username):
+        query = "select elo from player where username = %s;"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query, (username,))
+            row = cursor.fetchall()
+            return row
+
+    def updateElo(self, username, elo):
+        query = f"update player set elo = \'{elo}\' where username = \'{username}\';"
+
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def addActivePlayer(self, username):
+        query = f"INSERT INTO ActivePlayers (username) VALUES (\'{username}\');"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def deleteActivePlayer(self, username):
+        query = f"DELETE FROM ActivePlayers WHERE username = \'{username}\';"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            self.con.commit()
+
+    def getActivePlayers(self):
+        query = f"SELECT * FROM ActivePlayers;"
+        with self.con.cursor() as cursor:
+            cursor.execute(query)
+            row = cursor.fetchall()
+            return row
+
+
