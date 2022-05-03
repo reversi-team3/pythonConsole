@@ -56,7 +56,6 @@ class Controller(ABC):
         # FIXME shouldn't be initializing a game from inside the controller
         self.model = Game()
         self.model.set_board_size(size)
-        # self.model.set_board_size(self.model.board.shape[0])
 
     def set_view(self, view: GameView):
         self.view = view
