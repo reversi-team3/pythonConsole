@@ -10,22 +10,27 @@ import numpy as np
 
 
 class AIPlayer(BasePlayer):
-    def __init__(self, model: Game, color=Color.WHITE):
+    def __init__(self, model: Game, color=Color.WHITE, num=2):
         super().__init__(color)
         self.difficulty = None
         self.model = model
         self.username = None
+        self.num = num
+        self.elo = 0
 
     def change_difficulty(self, difficulty):
         if difficulty == "Easy":
             self.difficulty = 1
             self.username = "EasyBot"
+            self.elo = 400
         elif difficulty == "Medium":
             self.difficulty = 3
             self.username = "MediumBot"
+            self.elo = 800
         elif difficulty == "Hard":
             self.difficulty = 5
             self.username = "HardBot"
+            self.elo = 1200
 
     def receive_move(self, i, j):
         return self.determine_move(self.model.board, self.difficulty)
@@ -48,7 +53,7 @@ class AIPlayer(BasePlayer):
         valid_moves = []
         for i in range(len(board)):
             for j in range(len(board)):
-                if board[i][j] == 0 and Game.is_legal_move(board, self.model.player_two, i, j):
+                if board[i][j] == 0 and Game.is_legal_move(board, self.model.player_two.num, i, j):
                     valid_moves.append([i, j])
         return valid_moves
 
@@ -58,9 +63,9 @@ class AIPlayer(BasePlayer):
         player_o_disks = 0
         for i in range(len(board)):
             for j in range(len(board)):
-                if board[i][j] == self.model.player_one:
+                if board[i][j] == self.model.player_one.num:
                     player_x_disks += 1
-                if board[i][j] == self.model.player_two:
+                if board[i][j] == self.model.player_two.num:
                     player_o_disks += 1
 
         return player_o_disks - player_x_disks
@@ -94,3 +99,6 @@ class AIPlayer(BasePlayer):
 
     def set_game(self, game):
         self.model = game
+
+    def update_elo(self, opponent_rating, self_won):
+        pass

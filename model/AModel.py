@@ -1,7 +1,7 @@
 import ast
 import json
 import math
-import random
+from abc import abstractmethod, ABC
 
 import numpy as np
 
@@ -12,50 +12,15 @@ from model.online_player import OnlinePlayer
 from model.player import BasePlayer, Color
 from mysql.connector import connect, Error
 from getpass import getpass
-from model.AModel import AGame
 
 
-class Game(AGame):
-    def __init__(self, *args):
-        self.id = random.randint(0, 1000)
-        
-        if len(args) > 2:
-            self.player_one = args[0]
-            self.player_two = args[1]
-            self.board = args[2]
-            if args[3] == self.player_one.username:
-                self.curr_player = self.player_one
-            else:
-                self.curr_player = self.player_two
-        else:
-            if args:
-                self.player_one = args[0]
-                self.player_two = args[1]
+class AGame(ABC):
+    def __int__(self):
+        pass
 
-            else:
-                self.player_one = OnlinePlayer("Guest" + str(random.randint(1, 1000)), Color.BLACK, 1)
-                self.player_two = OnlinePlayer("Player2", Color.WHITE)
-            self.board = 0
-            self.curr_player = self.player_one
-            self.set_board_size()
-            # used for runtime efficiency of has_legal_moves()
-        self.zeros = len(self.board) - 4
-            #self.db = None
-            # should probably initialize the db server connection here and refer to it as needed
-            # instead of opening/closing in every method call
-        self.db = DBManager.get_instance()
-        self.game_state = [self.board, self.curr_player]
-
+    @abstractmethod
     def set_board_size(self, board_size=8):
-        self.board = np.zeros((board_size, board_size), dtype=np.object)
-        self.board[int(board_size / 2), int(board_size / 2)
-        ] = self.player_one.num
-        self.board[int(board_size / 2 - 1), int(board_size / 2 -
-                                                1)] = self.player_one.num
-        self.board[int(board_size / 2), int(board_size / 2 - 1)
-        ] = self.player_two.num
-        self.board[int(board_size / 2 - 1), int(board_size / 2)
-        ] = self.player_two.num
+        pass
 
     @staticmethod
     def is_legal_move(board, curr_turn, row, col):
@@ -162,109 +127,56 @@ class Game(AGame):
             board[tile[0]][tile[1]] = curr_turn
             # re-implement zeros
 
+    @abstractmethod
     def has_legal_moves(self):
         """
         :return: True if there are still legal moves for this player, false otherwise
         """
-        if self.zeros >= len(self.board):
-            for i in range(len(self.board)):
-                for j in range(len(self.board)):
-                    if self.board[i][j] == 0 and Game.is_legal_move(self.board, self.curr_player.num, i, j):
-                        return True
-        else:
-            for i in range(len(self.board)):
-                for j in range(len(self.board)):
-                    if self.board[i][j] != 0:
-                        zeros = self.has_surrounding_empty_tile(i, j)
-                        if zeros:
-                            for zero in zeros:
-                                if Game.is_legal_move(self.board, self.curr_player.num, zero[0], zero[1]):
-                                    return True
-            return False
+        pass
 
+    @abstractmethod
     def has_surrounding_empty_tile(self, row, col):
-        neighbor_zeros = []
-        for i in range(max(0, row - 1), min(row + 2, len(self.board))):
-            for j in range(max(0, col - 1), min(col + 2, len(self.board))):
-                if self.board[i][j] == 0:
-                    neighbor_zeros.append([i, j])
-        return neighbor_zeros
+        pass
 
+    @abstractmethod
     def is_board_full(self):
-        return not np.any(self.board == 0)
+        pass
 
+    @abstractmethod
     def change_turn(self):
-        if self.curr_player == self.player_one:
-            self.curr_player = self.player_two
-        else:
-            self.curr_player = self.player_one
+        pass
 
+    @abstractmethod
     def get_winner(self):
         """
         :return: 1 if Player X won, 2 if Player O won, 0 if draw
         """
-        self.db.deleteGame(self.player_one.username)
-        player_one_disks = 0
-        player_two_disks = 0
-        for i in range(len(self.board)):
-            for j in range(len(self.board)):
-                if self.board[i][j] == self.player_one.num:
-                    player_one_disks += 1
-                if self.board[i][j] == self.player_two.num:
-                    player_two_disks += 1
+        pass
 
-        # update wins and losses for winner
-        if player_one_disks > player_two_disks:
-            return self.player_one
-        elif player_one_disks < player_two_disks:
-            return self.player_two
-        else:
-            return 0
-
+    @abstractmethod
     def get_leaderboard(self):
-        # try/catch this
-        conn = connect()
+        pass
 
-        lb_query = "SELECT * FROM leaderboard"
-        with conn.cursor as cursor:
-            cursor.execute(lb_query)
-            result = cursor.fetchall()
-            return result
-
+    @abstractmethod
     def to_JSON(self):
-        json_board = self.board.tolist()
-        json_board = json.dumps(json_board)
-        return json.dumps(json_board, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
+        pass
 
+    @abstractmethod
     def from_JSON(self):
-        self.board = np.array(json.loads(json.loads(self.board)))
+        pass
 
-
+    @abstractmethod
     def get_player(self, num):
-        if self.player_one.num == num:
-            return self.player_one
-        else:
-            return self.player_two
+        pass
 
+    @abstractmethod
     def set_player_elo(self):
-        if "Guest" in self.player_one.username:
-            return
-        elo = self.db.getElo(self.player_one.username)
-        self.player_one.elo = elo[0][0]
-        # set player_two elo
+        pass
 
+    @abstractmethod
     def update_elo(self, winner):
-        if winner == self.player_one:
-            player_one_elo = self.player_one.update_elo(self.player_two.elo, True)
-            player_two_elo = self.player_two.update_elo(self.player_one.elo, False)
-        else:
-            player_one_elo = self.player_one.update_elo(self.player_two.elo, False)
-            player_two_elo = self.player_two.update_elo(self.player_one.elo, True)
+        pass
 
-        self.db.updateElo(self.player_one.username, player_one_elo)
-        self.db.updateElo(self.player_two.username, player_two_elo)
-
+    @abstractmethod
     def get_online_players(self):
-        return self.db.getActivePlayers()
-
+        pass
